@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# App data (user/runtime artifacts)
+data/benchmarks/runs/
+data/aco_runs/
+data/exported_datasets/
+data/cache/
+data/benchmark_runner/
+
+# User configs (keep example files, ignore others)
+data/server_configs/*.json
+!data/server_configs/example_*.json
+data/saved_configs/*.json
+!data/saved_configs/example_*.json
+
+# Temporary files
+*.tmp
+*.temp
