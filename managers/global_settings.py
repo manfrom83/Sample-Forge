@@ -18,7 +18,9 @@ class GlobalSettings:
         self.default_settings = {
             "endpoint_type": "chat_completions",  # "chat_completions" or "completions"
             "suppress_popups": True,  # Auto-approve confirmations; avoid modal popups in UI flows
-            "theme": "Sunset 70s"
+            "theme": "Sunset 70s",
+            # Optional override for where benchmark runs are stored (defaults to app_paths.benchmark_runs)
+            "runs_dir": ""
         }
         self.settings = self.default_settings.copy()
         self.load_settings()
@@ -76,6 +78,16 @@ class GlobalSettings:
     def set_suppress_popups(self, value: bool):
         """Set popup suppression and save"""
         self.settings["suppress_popups"] = bool(value)
+        self.save_settings()
+
+    # ----- Benchmark runs directory (for Scoring UI) -----
+    def get_runs_dir(self) -> str:
+        """Return custom runs directory if set; otherwise empty string."""
+        return self.settings.get("runs_dir", "")
+
+    def set_runs_dir(self, path: str):
+        """Set custom runs directory path and save."""
+        self.settings["runs_dir"] = str(path or "")
         self.save_settings()
 
 

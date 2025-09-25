@@ -60,7 +60,10 @@ class ScoringUI(BaseUIComponent):
         
         # Use centralized path management for benchmark runs
         from managers.path_manager import app_paths
-        self.runs_dir = str(app_paths.benchmark_runs)
+        from managers.global_settings import global_settings
+        # Allow overriding the runs directory via global settings
+        custom_runs = global_settings.get_runs_dir()
+        self.runs_dir = custom_runs if (custom_runs and os.path.isdir(custom_runs)) else str(app_paths.benchmark_runs)
         os.makedirs(self.runs_dir, exist_ok=True)
     
 
@@ -111,7 +114,9 @@ class ScoringUI(BaseUIComponent):
         self.refresh_btn = ttk.Button(btn_frame, text="Refresh List", command=self.refresh_run_list)
         self.refresh_btn.pack(side=tk.LEFT, padx=(0, 10))
         self.score_btn = ttk.Button(btn_frame, text="Score Selected Run", command=self.score_selected_run, state='disabled')
-        self.score_btn.pack(side=tk.LEFT)
+        self.score_btn.pack(side=tk.LEFT, padx=(0, 10))
+        self.change_dir_btn = ttk.Button(btn_frame, text="Change Runs Folder", command=self.change_runs_folder)
+        self.change_dir_btn.pack(side=tk.LEFT)
 
         # ----- Results -----
         results_section = self.create_section(content, "Scoring Results")
@@ -193,6 +198,23 @@ class ScoringUI(BaseUIComponent):
         if runs:
             self.run_listbox.selection_set(0)
             self.on_run_selected()
+
+    def change_runs_folder(self):
+        """Let user choose a different runs directory (for scoring runs created elsewhere)."""
+        from tkinter import filedialog
+        initial = self.runs_dir if os.path.isdir(self.runs_dir) else os.getcwd()
+        new_dir = filedialog.askdirectory(title="Select Benchmark Runs Folder", initialdir=initial)
+        if not new_dir:
+            return
+        # Persist and refresh
+        try:
+            from managers.global_settings import global_settings
+            self.runs_dir = new_dir
+            global_settings.set_runs_dir(new_dir)
+            self.refresh_run_list()
+            self.log_info(f"Runs folder set to: {new_dir}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to set runs folder: {e}")
     
     def on_run_selected(self, event=None):
         """Handle run selection"""
@@ -240,7 +262,8 @@ class ScoringUI(BaseUIComponent):
         run_path = os.path.join(self.runs_dir, run_name)
         
         # Load unified metadata (single source of truth)
-        with open(os.path.join(run_path, 'metadata.json'), 'r') as f:
+        meta_path = os.path.join(run_path, 'metadata.json')
+        with open(meta_path, 'r') as f:
             metadata = json.load(f)
         
         # Extract questions from unified structure
