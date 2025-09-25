@@ -53,11 +53,19 @@ data/exported_datasets/
 data/cache/
 data/benchmark_runner/
 
+# Keep placeholders for ignored data directories
+!data/aco_runs/.gitkeep
+!data/exported_datasets/.gitkeep
+!data/cache/.gitkeep
+!data/benchmark_runner/.gitkeep
+
 # User configs (keep example files, ignore others)
 data/server_configs/*.json
 !data/server_configs/example_*.json
+!data/server_configs/EXAMPLE_*.json
 data/saved_configs/*.json
 !data/saved_configs/example_*.json
+!data/saved_configs/EXAMPLE_*.json
 
 # Temporary files
 *.tmp
