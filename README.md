@@ -1,6 +1,6 @@
 # Sample Forge
 
-Model‑agnostic desktop app for configuring and benchmarking local LLM servers (e.g., llama.cpp), exploring API parameters, converting/evaluating datasets, and running automated parameter search.
+Research tool for deterministic inferance and convergent sampling parameters in large language models.
 
 ## Highlights
 - Server Config: Build and launch a local `llama-server` with validated flags.
@@ -112,11 +112,6 @@ data/                   # user data (ignored in git except examples/.gitkeep)
   - Ensure internet access on first load.
   - Click “Load Complete Dataset” to force a fresh cache rebuild.
 - Server connection errors: verify host/port/timeouts on the Server Config tab; confirm `llama-server` is running.
-
-## Roadmap / Notes
-- UI polish is ongoing; tabs are being converged on shared layout helpers.
-- Auto Mode branch scheduler and additional sampler families are planned.
-- Contributions/issues are welcome via GitHub.
 
 ## License
 This project is released under the MIT License (see `LICENSE`).
