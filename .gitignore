@@ -62,3 +62,7 @@ data/saved_configs/*.json
 # Temporary files
 *.tmp
 *.temp
+
+# UI/runtime state files
+ui/.last_config
+data/saved_configs/.last_config
