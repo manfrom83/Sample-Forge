@@ -41,52 +41,39 @@ class CompleteDatasetLoader:
             logger.info(f"Progress: {message}" + (f" ({percent}%)" if percent else ""))
     
     def discover_categories(self) -> List[str]:
-        """Dynamically discover available LiveBench categories"""
+        """Discover the core LiveBench categories for this app.
+
+        Behavior:
+        - Restricts discovery to the six canonical categories the UI expects.
+        - Verifies each by probing the Hugging Face dataset split.
+        - Excludes auxiliary repos like "liveswebench" or "model_*".
+        """
         self._ensure_huggingface_loaded()
-        
-        # First attempt: Dynamic discovery from HuggingFace Hub API
-        try:
-            from huggingface_hub import list_datasets
-            logger.info("Attempting dynamic category discovery from HuggingFace Hub...")
-            
-            # Find all livebench/* repositories
-            livebench_repos = list_datasets(search="livebench/")
-            potential_categories = []
-            
-            for repo in livebench_repos:
-                if repo.id.startswith("livebench/"):
-                    category = repo.id.split("/", 1)[1]  # Extract category after "livebench/"
-                    potential_categories.append(category)
-            
-            potential_categories = sorted(list(set(potential_categories)))  # Remove duplicates and sort
-            logger.info(f"Discovered {len(potential_categories)} potential categories: {potential_categories}")
-            
-        except Exception as e:
-            logger.warn(f"Dynamic discovery failed: {e}")
-            logger.info("Falling back to known stable categories...")
-            # Fallback to known LiveBench categories
-            potential_categories = [
-                'reasoning', 'math', 'coding', 'data_analysis', 
-                'language', 'instruction_following'
-            ]
-        
-        # Verify discovered/fallback categories exist and are accessible
-        verified_categories = []
-        
-        for category in potential_categories:
+
+        # Canonical LiveBench categories supported by the app
+        core_categories = [
+            'reasoning', 'math', 'coding', 'data_analysis',
+            'language', 'instruction_following'
+        ]
+
+        verified: List[str] = []
+        for category in core_categories:
             try:
                 dataset_name = f"livebench/{category}"
-                # Try to load just the dataset info to verify it exists
-                ds_info = self.load_dataset(dataset_name, split='test', streaming=True)
-                # If we get here, the dataset exists
-                verified_categories.append(category)
-                logger.info(f"Verified category: {category}")
-                
+                # Probe availability quickly via streaming iterator
+                _ = self.load_dataset(dataset_name, split='test', streaming=True)
+                verified.append(category)
+                logger.info(f"Verified core category: {category}")
             except Exception as e:
-                logger.warn(f"Category {category} not available: {e}")
-        
-        logger.info(f"Final verified categories: {verified_categories}")
-        return verified_categories
+                logger.warn(f"Core category unavailable: {category} -> {e}")
+
+        # If none verified (e.g., transient network), fall back to the known list
+        if not verified:
+            logger.warn("No core categories verified; falling back to default list")
+            verified = core_categories
+
+        logger.info(f"Final categories: {verified}")
+        return verified
     
     def load_category_metadata(self, category: str) -> Dict[str, Any]:
         """Load metadata for a single category without loading all questions"""
