@@ -47,11 +47,11 @@ Thumbs.db
 *.sqlite3
 
 # App data (user/runtime artifacts)
-data/benchmarks/runs/
-data/aco_runs/
-data/exported_datasets/
-data/cache/
-data/benchmark_runner/
+data/benchmarks/runs/*
+data/aco_runs/*
+data/exported_datasets/*
+data/cache/*
+data/benchmark_runner/*
 
 # Keep placeholders for ignored data directories
 !data/aco_runs/.gitkeep
