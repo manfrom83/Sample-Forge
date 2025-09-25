@@ -296,6 +296,11 @@ class BenchmarkDataset:
     
     def load_complete_dataset_cache(self) -> bool:
         """Load complete dataset metadata and build cache (called by 'Load Dataset' button)"""
+        # Always clear any stale on-disk cache so users get fresh, correct categories
+        try:
+            self.hf_loader.cache_manager.clear_cache()
+        except Exception:
+            pass
         return self.hf_loader.load_complete_dataset()
     
     def has_cached_data(self) -> bool:
