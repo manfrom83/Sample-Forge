@@ -27,6 +27,12 @@ Model‑agnostic desktop app for configuring and benchmarking local LLM servers 
 - In the app, open the “Server Config” tab and point the executable path to that `llama-server.exe`, then configure flags and start the server.
 - CPU‑only users can use a CPU build of llama.cpp or compile from source; update the path accordingly.
 
+### Linux / macOS
+- Note: the app has not been tested by the maintainer on Linux or macOS yet.
+- You must download platform‑appropriate builds from the main llama.cpp releases page (the Windows ZIP links above will not work on non‑Windows):
+  - https://github.com/ggml-org/llama.cpp/releases
+- After downloading the correct package for your OS (e.g., Metal build for Apple silicon), ensure the `llama-server` binary and any required runtime libraries are in the same folder, then point the Server Config tab to that executable.
+
 ## Quick Start (Windows)
 1. Download the ZIP from the repository page and extract.
 2. Double‑click `run_app.bat`.
