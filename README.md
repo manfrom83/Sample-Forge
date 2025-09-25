@@ -20,17 +20,17 @@ Research tool for deterministic inference and convergent sampling parameters in 
 - For Linux: install Tkinter (e.g., `sudo apt-get install python3-tk`).
 
 ### llama.cpp Server (Windows/NVIDIA)
-- To run a local model server, download llama.cpp binaries and the CUDA runtime and extract them into the SAME folder, e.g. `C:\llama-server`:
-  - CUDA runtime ZIP: https://github.com/ggml-org/llama.cpp/releases/download/b6585/cudart-llama-bin-win-cuda-12.4-x64.zip
-  - llama.cpp server ZIP: https://github.com/ggml-org/llama.cpp/releases/download/b6585/llama-b6585-bin-win-cuda-12.4-x64.zip
+- To run a local model server, download llama.cpp binaries and the CUDA runtime (build b6246) and extract them into the SAME folder, e.g. `C:\llama-server`:
+  - CUDA runtime ZIP: https://github.com/ggml-org/llama.cpp/releases/download/b6246/cudart-llama-bin-win-cuda-12.4-x64.zip
+  - llama.cpp server ZIP: https://github.com/ggml-org/llama.cpp/releases/download/b6246/llama-b6246-bin-win-cuda-12.4-x64.zip
 - After extracting both into one folder, you should have `llama-server.exe` alongside the required CUDA DLLs.
 - In the app, open the “Server Config” tab and point the executable path to that `llama-server.exe`, then configure flags and start the server.
 - CPU‑only users can use a CPU build of llama.cpp or compile from source; update the path accordingly.
 
 ### Linux / macOS
 - Note: the app has not been tested by the maintainer on Linux or macOS yet.
-- You must download platform‑appropriate builds from the main llama.cpp releases page (the Windows ZIP links above will not work on non‑Windows):
-  - https://github.com/ggml-org/llama.cpp/releases
+- Use platform‑appropriate builds from the corresponding tagged release (b6246):
+  - https://github.com/ggml-org/llama.cpp/releases/tag/b6246
 - After downloading the correct package for your OS (e.g., Metal build for Apple silicon), ensure the `llama-server` binary and any required runtime libraries are in the same folder, then point the Server Config tab to that executable.
 
 ## Quick Start (Windows)
