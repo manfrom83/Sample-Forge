@@ -25,6 +25,11 @@ if not exist "venv\Scripts\python.exe" (
 
 REM Install/upgrade dependencies
 echo Installing dependencies...
+echo.
+echo Note: first-time setup downloads Python packages (~50-150 MB).
+echo This can take a few minutes depending on your internet speed.
+echo Please keep this window open until installation completes.
+echo.
 call "venv\Scripts\python.exe" -m pip install --upgrade pip >nul
 call "venv\Scripts\python.exe" -m pip install -r requirements.txt || (
   echo Failed to install requirements. Check your internet connection and retry.
