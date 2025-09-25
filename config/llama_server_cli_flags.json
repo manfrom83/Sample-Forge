@@ -1,0 +1,2238 @@
+{
+  "Server Infrastructure": {
+    "--host": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "critical",
+      "validation": "ip_address",
+      "range": "Valid IPv4/IPv6 addresses",
+      "recommended": "\"127.0.0.1\" (local), \"0.0.0.0\" (all interfaces)",
+      "ui_widget": "Text input with IP validation",
+      "tooltip": "Host IP Address\n• Function: IP address for server to bind and listen for connections\n• Range: Valid IPv4/IPv6 addresses or UNIX socket paths ending in .sock\n• Server Default: 127.0.0.1 (local only)\n• Effects: 127.0.0.1=local access only, 0.0.0.0=all network interfaces, specific IP=that interface only",
+      "examples": [
+        "127.0.0.1",
+        "0.0.0.0",
+        "192.168.1.100"
+      ]
+    },
+    "--port": {
+      "default": "",
+      "type": "int",
+      "min": 1,
+      "max": 65535,
+      "toggled": false,
+      "priority": "critical",
+      "range": "1024-65535 (recommended), 1-65535 (possible)",
+      "recommended": "8080-8090 (avoid conflicts)",
+      "ui_widget": "Number spinner with port validation",
+      "tooltip": "Server Port\n• Function: TCP port number for server to listen for incoming connections\n• Range: 1 to 65535 (1024+ recommended for non-root)\n• Server Default: 8080\n• Effects: <1024=requires root privileges, 8080-8090=common dev ports, >1024=user accessible",
+      "examples": [
+        8080,
+        8081,
+        8090,
+        3000
+      ]
+    },
+    "--timeout": {
+      "default": "",
+      "type": "int",
+      "min": 1,
+      "max": 999999,
+      "toggled": false,
+      "priority": "critical",
+      "range": "10-3600 (recommended), 1-âˆž (possible)",
+      "recommended": "300-1200 (5-20 minutes)",
+      "ui_widget": "Number spinner with unit label",
+      "tooltip": "Server Timeout\n• Function: Maximum time in seconds for server read/write operations before timing out\n• Range: 1 to unlimited (10-3600 recommended)\n• Server Default: 600 (10 minutes)\n• Effects: Too low=premature timeouts, too high=hung connections, 300-1200=typical range",
+      "examples": [
+        300,
+        600,
+        900,
+        1200
+      ]
+    },
+    "--threads-http": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 128,
+      "toggled": false,
+      "priority": "critical",
+      "range": "-1, 1-32 (recommended), 1-128 (possible)",
+      "recommended": "-1 (auto) or 2-8",
+      "ui_widget": "Number spinner with Auto option",
+      "tooltip": "HTTP Processing Threads\n• Function: Number of threads dedicated to processing HTTP requests (separate from inference threads)\n• Range: -1 or 1 to 128 (-1 = auto-detection)\n• Server Default: -1 (auto-detect)\n• Effects: -1=optimal auto-detection, 1-4=light load, 8-16=heavy load, 32+=very high concurrency",
+      "examples": [
+        -1,
+        2,
+        4,
+        8
+      ]
+    }
+  },
+  "Model & GPU Configuration": {
+    "--model": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "critical",
+      "validation": "File exists, .gguf extension",
+      "ui_widget": "File picker with .gguf filter",
+      "tooltip": "Model File Path\n• Function: Path to GGUF model file that the server will load and run\n• Range: Valid path to .gguf file\n• Server Default: models/7B/ggml-model-f16.gguf (if no HF options set)\n• Effects: Required parameter - server cannot start without valid model file",
+      "examples": [
+        "model.gguf",
+        "models/llama-7b-q4.gguf"
+      ],
+      "required": true
+    },
+    "--n-gpu-layers": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 999999,
+      "toggled": false,
+      "priority": "critical",
+      "range": "0-200 (recommended), 0-âˆž (possible)",
+      "recommended": "99 (RTX 4090), 0 (CPU-only)",
+      "ui_widget": "Number spinner with GPU detection",
+      "tooltip": "GPU Layer Offload\n• Function: Number of transformer layers to store in GPU VRAM instead of system RAM\n• Range: 0 to model layer count (typically 32-80+ layers)\n• Server Default: 0 (CPU-only)\n• Effects: 0=CPU only, 33=half GPU, 99=attempt full GPU, higher numbers=more GPU utilization",
+      "examples": [
+        0,
+        33,
+        66,
+        99,
+        120
+      ]
+    },
+    "--split-mode": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "none",
+        "layer",
+        "row"
+      ],
+      "toggled": false,
+      "priority": "critical",
+      "recommended": "layer (most cases), row (tensor parallelism)",
+      "ui_widget": "Dropdown selection",
+      "tooltip": "Multi-GPU Split Strategy\n• Function: Method for distributing model across multiple GPUs\n• Range: none, layer, row\n• Server Default: layer\n• Effects: none=single GPU, layer=split layers+KV across GPUs, row=tensor parallelism across GPUs",
+      "examples": [
+        "layer",
+        "row",
+        "none"
+      ]
+    },
+    "--main-gpu": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 15,
+      "toggled": false,
+      "priority": "critical",
+      "range": "0-7 (typical), 0-15 (possible)",
+      "recommended": 0,
+      "ui_widget": "Number spinner with GPU list",
+      "tooltip": "Primary GPU Index\n• Function: GPU device index for model or intermediate results (usage depends on split-mode)\n• Range: 0 to available GPU count - 1\n• Server Default: 0 (first GPU)\n• Effects: With none=main model GPU, with row=intermediate results GPU, 0=first GPU, 1=second GPU, etc.",
+      "examples": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "Memory & Performance": {
+    "--ctx-size": {
+      "default": "",
+      "type": "int",
+      "min": 512,
+      "max": 131072,
+      "toggled": false,
+      "priority": "critical",
+      "range": "512-32768 (recommended), 1-131072 (possible)",
+      "recommended": "4096-8192 (most models), 16384-32768 (long context)",
+      "ui_widget": "Number spinner with presets",
+      "tooltip": "Context Window Size\n• Function: Maximum number of tokens the model can consider at once (prompt + previous conversation)\n• Range: 512 to 131072+ (0 = use model's default)\n• Server Default: 4096\n• Effects: Larger=longer conversations but more VRAM/RAM usage, 4096=standard, 8192=extended, 32768+=very long context",
+      "examples": [
+        2048,
+        4096,
+        8192,
+        16384,
+        32768
+      ]
+    },
+    "--batch-size": {
+      "default": "",
+      "type": "int",
+      "min": 1,
+      "max": 16384,
+      "toggled": false,
+      "priority": "critical",
+      "range": "128-8192 (recommended), 1-16384 (possible)",
+      "recommended": "1024-4096 (RTX 4090), 512-1024 (lower VRAM)",
+      "ui_widget": "Number spinner with memory calculator",
+      "tooltip": "Logical Batch Size\n• Function: Maximum number of tokens processed together in batched operations\n• Range: 1 to 16384+\n• Server Default: 2048\n• Effects: Higher=better throughput but more VRAM, 512=conservative, 2048=balanced, 4096+=high throughput",
+      "examples": [
+        512,
+        1024,
+        2048,
+        4096
+      ]
+    },
+    "--ubatch-size": {
+      "default": "",
+      "type": "int",
+      "min": 1,
+      "max": 4096,
+      "toggled": false,
+      "priority": "critical",
+      "range": "32-2048 (recommended), 1-4096 (possible)",
+      "recommended": "256-1024 (RTX 4090), 128-512 (lower VRAM)",
+      "ui_widget": "Number spinner tied to batch-size",
+      "tooltip": "Physical Batch Size\n• Function: Actual number of tokens processed simultaneously by GPU hardware\n• Range: 1 to 4096+ (should be ≤ batch-size)\n• Server Default: 512\n• Effects: Must be ≤ logical batch size, higher=better GPU utilization, 256=conservative, 512=balanced",
+      "examples": [
+        128,
+        256,
+        512,
+        1024
+      ]
+    },
+    "--cache-type-k": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "f32",
+        "f16",
+        "bf16",
+        "q8_0",
+        "q4_0",
+        "q4_1",
+        "iq4_nl",
+        "q5_0",
+        "q5_1"
+      ],
+      "toggled": false,
+      "priority": "critical",
+      "recommended": "\"f16\" (quality), \"q8_0\" (memory), \"q4_0\" (aggressive)",
+      "ui_widget": "Dropdown with VRAM impact indicator",
+      "tooltip": "Key Cache Quantization\n• Function: Data type for storing attention key vectors in KV cache\n• Range: f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1\n• Server Default: f16\n• Effects: f16=best quality+standard VRAM, q8_0=half VRAM+good quality, q4_0=quarter VRAM+lower quality",
+      "examples": [
+        "f16",
+        "q8_0",
+        "q4_0"
+      ]
+    },
+    "--cache-type-v": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "f32",
+        "f16",
+        "bf16",
+        "q8_0",
+        "q4_0",
+        "q4_1",
+        "iq4_nl",
+        "q5_0",
+        "q5_1"
+      ],
+      "toggled": false,
+      "priority": "critical",
+      "recommended": "Same as cache-type-k",
+      "ui_widget": "Dropdown synced with cache-type-k",
+      "tooltip": "Value Cache Quantization\n• Function: Data type for storing attention value vectors in KV cache\n• Range: f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1\n• Server Default: f16\n• Effects: Usually matches cache-type-k, f16=quality+standard VRAM, q8_0=half VRAM, q4_0=quarter VRAM",
+      "examples": [
+        "f16",
+        "q8_0",
+        "q4_0"
+      ]
+    },
+    "--flash-attn": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "critical",
+      "recommended": true,
+      "ui_widget": "Toggle switch with compatibility check",
+      "tooltip": "Flash Attention\n• Function: Memory-efficient attention algorithm that reduces VRAM usage and improves speed\n• Range: true/false\n• Server Default: false (disabled)\n• Effects: true=major speed boost+lower VRAM, false=standard attention, requires compatible GPU architecture",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--threads": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 128,
+      "toggled": false,
+      "priority": "critical",
+      "range": "-1, 1-64 (recommended), 1-128 (possible)",
+      "recommended": "-1 (auto) or CPU_cores - 2",
+      "ui_widget": "Number spinner with CPU core detection",
+      "tooltip": "CPU Generation Threads\n• Function: Number of CPU threads used for text generation processing\n• Range: -1 or 1 to 128 (-1 = auto-detection)\n• Server Default: -1 (auto-detect)\n• Effects: -1=optimal auto-detection, manual count=specific threading, more threads=better CPU utilization up to core count",
+      "examples": [
+        -1,
+        4,
+        8,
+        12,
+        16
+      ]
+    }
+  },
+  "Basic Sampling Parameters": {
+    "--temp": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 2,
+      "toggled": false,
+      "priority": "important",
+      "range": "0.0-2.0",
+      "recommended": "0.3-0.8 (conservative), 0.8-1.2 (creative)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Temperature\n• Function: Controls randomness in token selection by scaling logit probabilities\n• Range: 0.0 to infinity (practical limit: ~2.0)\n• Server Default: 0.8\n• Effects: 0.0=deterministic, 0.1-0.3=focused, 0.8=balanced, 1.2+=creative",
+      "examples": [
+        0.1,
+        0.3,
+        0.7,
+        0.8,
+        1
+      ]
+    },
+    "--top-k": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 1000,
+      "toggled": false,
+      "priority": "important",
+      "range": "0-1000",
+      "recommended": "10-50 (focused), 40 (balanced), 80+ (diverse)",
+      "ui_widget": "Number input",
+      "tooltip": "Top-K Sampling\n• Function: Limits token selection to the K most probable tokens, filtering out low-probability options\n• Range: 0 to 1000+ (0 = disabled, uses all tokens)\n• Server Default: 40\n• Effects: 0=no filtering, 1-10=very focused, 20-50=balanced, 100+=more diverse, high values approach no limit",
+      "examples": [
+        0,
+        10,
+        20,
+        40,
+        80
+      ]
+    },
+    "--top-p": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "toggled": false,
+      "priority": "important",
+      "range": "0.0-1.0",
+      "recommended": "0.8-0.95 (focused), 0.9 (balanced), 1.0 (disabled)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Top-P (Nucleus) Sampling\n• Function: Selects from smallest set of tokens whose cumulative probability ≥ P\n• Range: 0.0 to 1.0 (1.0 = disabled, uses all tokens)\n• Server Default: 0.9\n• Effects: 0.1=very focused, 0.5=moderate filtering, 0.9=balanced, 1.0=no filtering",
+      "examples": [
+        0.7,
+        0.8,
+        0.9,
+        0.95,
+        1
+      ]
+    },
+    "--min-p": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "toggled": false,
+      "priority": "important",
+      "range": "0.0-1.0",
+      "recommended": "0.02-0.1 (typical), 0.0 (disabled)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Min-P Sampling\n• Function: Sets minimum probability threshold relative to most likely token (adaptive threshold)\n• Range: 0.0 to 1.0 (0.0 = disabled)\n• Server Default: 0.1\n• Effects: 0.0=disabled, 0.02=very permissive, 0.05=balanced, 0.1=focused, 0.2+=very restrictive",
+      "examples": [
+        0,
+        0.02,
+        0.05,
+        0.1
+      ]
+    },
+    "--typical": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "toggled": false,
+      "priority": "moderate",
+      "range": "0.0-1.0",
+      "recommended": "0.9-0.95 (enabled), 1.0 (disabled)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Locally Typical Sampling\n• Function: Filters tokens based on information content relative to expected entropy\n• Range: 0.0 to 1.0 (1.0 = disabled)\n• Server Default: 1.0 (disabled)\n• Effects: 0.9-0.95=typical content, 0.8=more focused, 1.0=disabled, lower values=more predictable",
+      "examples": [
+        0.9,
+        0.95,
+        1
+      ]
+    },
+    "--top-n-sigma": {
+      "default": "",
+      "type": "float",
+      "min": -1,
+      "max": 5,
+      "toggled": false,
+      "priority": "experimental",
+      "range": "-1.0-5.0",
+      "recommended": "-1.0 (disabled), 1.0-2.0 (typical range)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Default top-n-sigma sampling for all requests (appears as 'top_n_sigma' in /slots endpoint). Statistical threshold-based token filtering on pre-softmax logits. -1.0=disabled. WARNING: This parameter may not work in your llama.cpp version (5685). Upgrade to a newer build for CLI support. Server default: -1.0. API requests can override this value.",
+      "examples": [
+        -1,
+        1,
+        1.5,
+        2
+      ]
+    },
+    "--mirostat": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "0",
+        "1",
+        "2"
+      ],
+      "toggled": false,
+      "priority": "optional",
+      "recommended": "0 (disabled), 1 (Mirostat v1), 2 (Mirostat v2)",
+      "ui_widget": "Dropdown selection",
+      "tooltip": "Mirostat Mode\n• Function: Perplexity-based adaptive sampling that maintains target entropy\n• Range: 0, 1, 2 (0 = disabled, 1 = Mirostat v1, 2 = Mirostat v2)\n• Server Default: 0 (disabled)\n• Effects: 0=standard sampling, 1=v1 algorithm, 2=v2 (improved), overrides top-k/top-p when enabled\n• WARNING: Top K, Nucleus and Locally Typical samplers are ignored if used",
+      "examples": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    "--seed": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 4294967295,
+      "toggled": false,
+      "priority": "important",
+      "range": "-1, 0-4294967295",
+      "recommended": "-1 (random), fixed numbers (deterministic)",
+      "ui_widget": "Number input",
+      "tooltip": "Random Number Generator Seed\n• Function: Controls random number generation for reproducible results\n• Range: -1, 0 to 4,294,967,295 (-1 = random seed each time)\n• Server Default: -1 (random)\n• Effects: -1=different each time, fixed number=identical results, essential for deterministic testing",
+      "examples": [
+        -1,
+        0,
+        12345,
+        333
+      ]
+    },
+    "--ignore-eos": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "recommended": "false (respect EOS), true (continue past EOS)",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Ignore End-of-Stream Token\n• Function: Controls whether generation stops at EOS token or continues indefinitely\n• Range: true/false\n• Server Default: false (respect EOS)\n• Effects: false=normal stopping, true=continues past natural end\n• WARNING: Implies --logit-bias EOS-inf (automatically bans EOS token)",
+      "examples": [
+        true,
+        false
+      ]
+    }
+  },
+  "Advanced Sampling Parameters": {
+    "--repeat-penalty": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 2,
+      "toggled": false,
+      "priority": "important",
+      "range": "0.0-2.0",
+      "recommended": "1.0 (disabled), 1.05-1.2 (moderate), 1.3+ (strong)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Repeat Penalty\n• Function: Penalizes repeat sequences of tokens to reduce repetitive patterns\n• Range: 0.0 to 2.0+ (1.0 = no penalty)\n• Server Default: 1.0 (disabled)\n• Effects: 1.0=no penalty, 1.05-1.1=subtle, 1.1-1.2=moderate, 1.3+=strong anti-repetition",
+      "examples": [
+        1,
+        1.05,
+        1.1,
+        1.2,
+        1.3
+      ]
+    },
+    "--repeat-last-n": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 2048,
+      "toggled": false,
+      "priority": "moderate",
+      "range": "-1, 0-2048",
+      "recommended": "64 (default), 128-256 (longer context), 0 (disabled)",
+      "ui_widget": "Number input",
+      "tooltip": "Repeat Last N\n• Function: Number of recent tokens to consider when applying repetition penalty\n• Range: -1, 0 to context_size (-1 = use full context, 0 = disabled)\n• Server Default: 64\n• Effects: 0=no memory, 32=short memory, 64=balanced, 128+=long memory, -1=full context",
+      "examples": [
+        -1,
+        0,
+        32,
+        64,
+        128
+      ]
+    },
+    "--presence-penalty": {
+      "default": "",
+      "type": "float",
+      "min": -2,
+      "max": 2,
+      "toggled": false,
+      "priority": "moderate",
+      "range": "-2.0 to 2.0",
+      "recommended": "0.0 (disabled), 0.1-0.5 (encourage diversity)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Presence Penalty\n• Function: Flat penalty for any token that has appeared previously (binary presence check)\n• Range: -2.0 to 2.0 (0.0 = no penalty)\n• Server Default: 0.0 (disabled)\n• Effects: 0.0=disabled, 0.1=subtle diversity, 0.5=moderate, 1.0+=strong vocabulary expansion",
+      "examples": [
+        0,
+        0.1,
+        0.2,
+        0.5
+      ]
+    },
+    "--frequency-penalty": {
+      "default": "",
+      "type": "float",
+      "min": -2,
+      "max": 2,
+      "toggled": false,
+      "priority": "moderate",
+      "range": "-2.0 to 2.0",
+      "recommended": "0.0 (disabled), 0.1-0.5 (reduce repetition)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Frequency Penalty\n• Function: Proportional penalty based on how often tokens have appeared (frequency-weighted)\n• Range: -2.0 to 2.0 (0.0 = no penalty)\n• Server Default: 0.0 (disabled)\n• Effects: 0.0=disabled, 0.1=gentle reduction, 0.5=moderate, 1.0+=strong frequency balancing",
+      "examples": [
+        0,
+        0.1,
+        0.2,
+        0.5
+      ]
+    },
+    "--dry-multiplier": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 5,
+      "toggled": false,
+      "priority": "moderate",
+      "range": "0.0-5.0",
+      "recommended": "0.0 (disabled), 0.8-1.2 (moderate), 2.0+ (strong)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "DRY Multiplier\n• Function: Penalty multiplier for repeated n-gram sequences (Don't Repeat Yourself sampling)\n• Range: 0.0 to 5.0+ (0.0 = disabled)\n• Server Default: 0.0 (disabled)\n• Effects: 0.0=disabled, 0.8=subtle, 1.0=moderate, 2.0=strong, 3.0+=very aggressive anti-repetition",
+      "examples": [
+        0,
+        0.8,
+        1,
+        2
+      ]
+    },
+    "--dry-base": {
+      "default": "",
+      "type": "float",
+      "min": 1,
+      "max": 4,
+      "toggled": false,
+      "priority": "optional",
+      "range": "1.0-4.0",
+      "recommended": "1.75 (default)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "DRY Base\n• Function: Base penalty value used in DRY (Don't Repeat Yourself) sequence detection algorithm\n• Range: 1.0 to 4.0\n• Server Default: 1.75\n• Effects: 1.0=minimal penalty, 1.75=balanced, 2.5=moderate, 4.0=strong penalty scaling",
+      "examples": [
+        1,
+        1.5,
+        1.75,
+        2
+      ]
+    },
+    "--dry-allowed-length": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 10,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0-10",
+      "recommended": "2 (default)",
+      "ui_widget": "Number input",
+      "tooltip": "DRY Allowed Length\n• Function: Minimum n-gram sequence length before DRY penalty is applied\n• Range: 0 to 10\n• Server Default: 2\n• Effects: 1=single tokens, 2=pairs, 3=triplets, 4+=longer sequences, higher=less aggressive",
+      "examples": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "--dry-penalty-last-n": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 1000,
+      "toggled": false,
+      "priority": "optional",
+      "range": "-1, 0-1000",
+      "recommended": "-1 (context size), 64-256 (limited)",
+      "ui_widget": "Number input",
+      "tooltip": "DRY Penalty Last N\n• Function: Number of recent tokens to scan for repeated sequences in DRY sampling\n• Range: -1, 0 to 1000+ (-1 = use full context, 0 = disabled)\n• Server Default: -1 (full context)\n• Effects: 0=disabled, 64=short memory, 256=moderate, -1=full context scan",
+      "examples": [
+        -1,
+        0,
+        64,
+        128
+      ]
+    },
+    "--xtc-probability": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.0-1.0",
+      "recommended": "0.0 (disabled), 0.1-0.5 (enabled)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "XTC Probability\n• Function: Exclude Top Choices sampling - probability of excluding the most likely token\n• Range: 0.0 to 1.0 (0.0 = disabled)\n• Server Default: 0.0 (disabled)\n• Effects: 0.0=disabled, 0.1=occasional exclusion, 0.3=moderate diversity, 0.5+=high unpredictability",
+      "examples": [
+        0,
+        0.1,
+        0.3,
+        0.5
+      ]
+    },
+    "--xtc-threshold": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.0-1.0",
+      "recommended": "0.1 (default)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "XTC Threshold\n• Function: Minimum probability threshold for XTC exclusion to activate\n• Range: 0.0 to 1.0\n• Server Default: 0.1\n• Effects: 0.1=exclude when top token >10%, 0.5=only when >50%, 1.0=never exclude, lower=more aggressive",
+      "examples": [
+        0.1,
+        0.2,
+        0.3
+      ]
+    },
+    "--dynatemp-range": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 2,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.0-2.0",
+      "recommended": "0.0 (disabled), 0.1-0.5 (moderate)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Dynamic Temperature Range\n• Function: Allows temperature to vary based on entropy - creates range [temp-range, temp+range]\n• Range: 0.0 to 2.0 (0.0 = disabled, fixed temperature)\n• Server Default: 0.0 (disabled)\n• Effects: 0.0=fixed temp, 0.1=subtle variation, 0.3=moderate adaptation, 0.5+=high dynamics",
+      "examples": [
+        0,
+        0.1,
+        0.2,
+        0.5
+      ]
+    },
+    "--dynatemp-exp": {
+      "default": "",
+      "type": "float",
+      "min": 0.1,
+      "max": 5,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.1-5.0",
+      "recommended": "1.0 (default)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Dynamic Temperature Exponent\n• Function: Controls the curve/shape of how dynamic temperature varies with entropy\n• Range: 0.1 to 5.0\n• Server Default: 1.0 (linear)\n• Effects: 0.5=gentler curve, 1.0=linear scaling, 2.0=steeper curve, 3.0+=very steep adaptation",
+      "examples": [
+        0.5,
+        1,
+        1.5,
+        2
+      ]
+    },
+    "--mirostat-lr": {
+      "default": "",
+      "type": "float",
+      "min": 0.01,
+      "max": 1,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.01-1.0",
+      "recommended": "0.1 (default)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Mirostat Learning Rate (Eta)\n• Function: How quickly Mirostat adapts the probability distribution to maintain target entropy\n• Range: 0.01 to 1.0\n• Server Default: 0.1\n• Effects: 0.01=very slow adaptation, 0.1=balanced, 0.5=moderate speed, 1.0=rapid adaptation",
+      "examples": [
+        0.05,
+        0.1,
+        0.2
+      ]
+    },
+    "--mirostat-ent": {
+      "default": "",
+      "type": "float",
+      "min": 1,
+      "max": 10,
+      "toggled": false,
+      "priority": "optional",
+      "range": "1.0-10.0",
+      "recommended": "5.0 (default)",
+      "ui_widget": "Number input with precision",
+      "tooltip": "Mirostat Target Entropy (Tau)\n• Function: Target entropy level that Mirostat tries to maintain (controls output complexity)\n• Range: 1.0 to 10.0\n• Server Default: 5.0\n• Effects: 2.0=simple/predictable, 5.0=balanced complexity, 8.0=more varied, 10.0=high diversity",
+      "examples": [
+        3,
+        5,
+        7
+      ]
+    },
+    "--dry-sequence-breaker": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "range": "String value",
+      "recommended": "\"none\" (clear defaults), custom strings",
+      "ui_widget": "Text input",
+      "tooltip": "DRY Sequence Breaker\n• Function: Custom string that breaks DRY pattern detection (clears defaults: \\n, :, \", *)\n• Range: Any string or \"none\"\n• Server Default: \\n, :, \", * (built-in)\n• Effects: \"none\"=no breakers, custom string=only that breaker, useful for specific text patterns\n• WARNING: Clears out default breakers when custom string is provided",
+      "examples": [
+        "none",
+        "custom_breaker",
+        "\\n"
+      ]
+    },
+    "--logit-bias": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "range": "TOKEN_ID(+/-)BIAS format",
+      "recommended": "Use sparingly for specific token control",
+      "ui_widget": "Text input with format validation",
+      "tooltip": "Logit Bias Control\n• Function: Direct manipulation of token probabilities by modifying logits before sampling\n• Range: TOKEN_ID(+/-)BIAS format (e.g., 15043+1, 15043-inf)\n• Server Default: none\n• Effects: +bias=increase probability, -bias=decrease, -inf=ban token, fine-grained control",
+      "examples": [
+        "15043+1",
+        "15043-1",
+        "1234+0.5",
+        "5678-0.8"
+      ]
+    }
+  },
+  "Sampler Sequence Control": {
+    "--samplers": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "important",
+      "range": "Semicolon-separated sampler names",
+      "recommended": "penalties;dry;top_k;top_p;min_p;temperature (default order)",
+      "ui_widget": "Text input with validation",
+      "tooltip": "Sampler Sequence Control\n• Function: Defines which sampling methods run and their execution order (semicolon-separated)\n• Range: penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature\n• Server Default: penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature\n• Effects: Order matters - early samplers affect later ones, missing samplers are skipped",
+      "examples": [
+        "penalties;dry;top_k;top_p;min_p;temperature",
+        "top_k;top_p;temperature",
+        "temperature"
+      ]
+    },
+    "--sampler-seq": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "range": "Letter sequence (e=penalties, d=dry, s=top_n_sigma, k=top_k, y=typ_p, p=top_p, m=min_p, x=xtc, t=temperature)",
+      "recommended": "edskypmxt (default), dkypmxt (no penalties), kpt (simple)",
+      "ui_widget": "Text input with validation",
+      "tooltip": "Simplified Sampler Sequence\n• Function: Shorthand letter codes for sampler sequence (alternative to --samplers)\n• Range: e=penalties, d=dry, s=top_n_sigma, k=top_k, y=typ_p, p=top_p, m=min_p, x=xtc, t=temperature\n• Server Default: edskypmxt\n• Effects: Easier to specify common sequences, same order-dependency rules apply",
+      "examples": [
+        "edskypmxt",
+        "dkypmxt",
+        "kpt",
+        "t"
+      ]
+    }
+  },
+  "Generation Control": {
+    "--cont-batching": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "important",
+      "recommended": "true (performance)",
+      "ui_widget": "Toggle switch with performance note",
+      "tooltip": "Continuous Batching (Enable)\n• Function: Enables dynamic batching of multiple requests for improved throughput\n• Range: true/false\n• Server Default: true (enabled)\n• Effects: true=better multi-request performance, false=sequential processing\n• WARNING: Conflicts with --no-cont-batching - only enable one",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--threads-batch": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 128,
+      "toggled": false,
+      "priority": "important",
+      "range": "-1, 1-64 (recommended)",
+      "recommended": "Same as threads or -1",
+      "ui_widget": "Number spinner synced with threads",
+      "tooltip": "Batch Processing Threads\n• Function: Number of CPU threads used during batch and prompt processing operations\n• Range: -1 or 1 to 128 (-1 = auto, defaults to same as --threads)\n• Server Default: same as --threads\n• Effects: -1=auto-detect, manual=specific threading, usually same as generation threads for consistency",
+      "examples": [
+        -1,
+        4,
+        8,
+        12,
+        16
+      ]
+    },
+    "--reasoning-format": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "none",
+        "deepseek"
+      ],
+      "toggled": false,
+      "priority": "important",
+      "recommended": "\"deepseek\" (structured), \"none\" (raw)",
+      "ui_widget": "Dropdown selection",
+      "tooltip": "Reasoning Format Control\n• Function: Controls how thought/reasoning tags are processed and returned in responses\n• Range: none, deepseek\n• Server Default: deepseek\n• Effects: none=raw thoughts in content, deepseek=structured reasoning_content field (except streaming), determines thought extraction",
+      "examples": [
+        "deepseek",
+        "none"
+      ]
+    },
+    "--reasoning-budget": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 10000,
+      "toggled": false,
+      "priority": "important",
+      "range": "-1, 0-10000 (recommended)",
+      "recommended": "-1 (unlimited), 1000-5000 (limited)",
+      "ui_widget": "Number spinner with unlimited option",
+      "tooltip": "Reasoning Token Budget\n• Function: Controls maximum amount of thinking/reasoning tokens allowed in responses\n• Range: -1, 0, or positive integers\n• Server Default: -1 (unlimited)\n• Effects: -1=unrestricted thinking, 0=disable thinking entirely, positive=token limit for reasoning",
+      "examples": [
+        -1,
+        0,
+        1000,
+        5000
+      ]
+    },
+    "--keep": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 1024,
+      "toggled": false,
+      "priority": "important",
+      "range": "-1, 0-1024 (recommended)",
+      "recommended": "0 (none), -1 (all), 10-50 (partial)",
+      "ui_widget": "Number spinner with special values",
+      "tooltip": "Initial Prompt Retention\n• Function: Number of tokens to keep from the initial prompt when context window fills up\n• Range: -1, 0, or positive integers\n• Server Default: 0 (keep none)\n• Effects: 0=discard prompt when full, -1=keep entire prompt, positive=keep N tokens from start",
+      "examples": [
+        -1,
+        0,
+        10,
+        50
+      ]
+    },
+    "--no-cont-batching": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Continuous Batching (Disable)\n• Function: Explicitly disables dynamic batching of requests\n• Range: true/false\n• Server Default: false (continuous batching enabled by default)\n• Effects: true=sequential processing, false=allows batching\n• WARNING: Conflicts with --cont-batching - only enable one",
+      "examples": [
+        true,
+        false
+      ]
+    }
+  },
+  "Advanced Processing": {
+    "--parallel": {
+      "default": "",
+      "type": "int",
+      "min": 1,
+      "max": 64,
+      "toggled": false,
+      "priority": "critical",
+      "range": "1-16 (recommended), 1-64 (possible)",
+      "recommended": "1-4 (most use cases)",
+      "ui_widget": "Number spinner with warning for high values",
+      "tooltip": "Parallel Sequence Processing\n• Function: Number of independent inference sequences that can be processed simultaneously\n• Range: 1 to 64+\n• Server Default: 1\n• Effects: 1=single sequence, 2-4=moderate parallelism, 8+=high concurrency but exponential memory usage",
+      "examples": [
+        1,
+        2,
+        4,
+        8
+      ]
+    },
+    "--defrag-thold": {
+      "default": "",
+      "type": "float",
+      "min": -1,
+      "max": 1,
+      "toggled": false,
+      "priority": "critical",
+      "range": "-1.0-1.0 (full range), 0.0-0.5 (recommended)",
+      "recommended": "0.1 (default), -1 (disabled)",
+      "ui_widget": "Number spinner with decimal precision",
+      "tooltip": "KV Cache Defragmentation\n• Function: Threshold for triggering KV cache defragmentation to reclaim fragmented memory\n• Range: -1.0 to 1.0 (<0 = disabled)\n• Server Default: 0.1\n• Effects: <0=disabled, 0.1=balanced, 0.5=aggressive defrag, higher=more frequent defragmentation",
+      "examples": [
+        -1,
+        0.05,
+        0.1,
+        0.2
+      ]
+    },
+    "--cache-reuse": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 999999,
+      "toggled": false,
+      "priority": "critical",
+      "range": "0-8192 (recommended), 0-âˆž (possible)",
+      "recommended": "0 (disabled), 512-2048 (enabled)",
+      "ui_widget": "Number spinner with bytes unit",
+      "tooltip": "KV Cache Reuse\n• Function: Minimum chunk size to attempt reusing from cache via KV shifting optimization\n• Range: 0 to unlimited\n• Server Default: 0 (disabled)\n• Effects: 0=no reuse, 512-1024=moderate reuse, 2048+=aggressive reuse, can improve performance with repeated patterns",
+      "examples": [
+        0,
+        512,
+        1024,
+        2048
+      ]
+    },
+    "--grammar": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "range": "BNF grammar rules",
+      "recommended": "Use for structured output control",
+      "ui_widget": "Large text area",
+      "tooltip": "BNF Grammar Constraints\n• Function: Backus-Naur Form grammar rules that restrict generation to valid syntax patterns\n• Range: Valid BNF grammar syntax\n• Server Default: empty (no constraints)\n• Effects: Ensures structured output, prevents invalid syntax, useful for code/data generation",
+      "examples": [
+        "root ::= \"hello\" | \"world\"",
+        "number ::= [0-9]+",
+        "json ::= object | array"
+      ]
+    },
+    "--grammar-file": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "range": "Path to grammar file",
+      "recommended": "Use .gbnf files from grammars/ directory",
+      "ui_widget": "File picker",
+      "tooltip": "Grammar File Path\n• Function: Path to file containing BNF grammar rules (alternative to inline --grammar)\n• Range: Valid file path to .gbnf or text file\n• Server Default: none\n• Effects: Loads grammar from file, convenient for complex/reusable grammars, see grammars/ directory",
+      "examples": [
+        "grammars/json.gbnf",
+        "grammars/chess.gbnf",
+        "grammars/arithmetic.gbnf"
+      ]
+    },
+    "--json-schema": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "range": "Valid JSON schema",
+      "recommended": "Use for structured JSON output",
+      "ui_widget": "Large text area with JSON validation",
+      "tooltip": "JSON Schema Constraints\n• Function: JSON Schema specification that enforces valid JSON structure in generation\n• Range: Valid JSON Schema syntax (draft-07 compatible)\n• Server Default: empty (no constraints)\n• Effects: Guarantees valid JSON output, enforces types/properties, useful for API responses",
+      "examples": [
+        "{\"type\": \"object\"}",
+        "{\"type\": \"string\"}",
+        "{\"type\": \"array\", \"items\": {\"type\": \"number\"}}"
+      ]
+    },
+    "--json-schema-file": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "range": "Path to JSON schema file",
+      "recommended": "Use .json files containing schema definitions",
+      "ui_widget": "File picker",
+      "tooltip": "JSON Schema File Path\n• Function: Path to file containing JSON Schema definition (alternative to inline --json-schema)\n• Range: Valid file path to .json schema file\n• Server Default: none\n• Effects: Loads schema from file, convenient for complex/reusable schemas",
+      "examples": [
+        "schemas/response.json",
+        "schemas/data.json",
+        "schemas/api-response.json"
+      ]
+    }
+  },
+  "Server Features & Monitoring": {
+    "--no-webui": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "important",
+      "recommended": "true (disable for benchmarking)",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable Web UI\n• Function: Disables the built-in web interface for API-only server operation\n• Range: true/false\n• Server Default: false (Web UI enabled)\n• Effects: true=API-only mode+better performance, false=web UI available, disable for benchmarking",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--metrics": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "important",
+      "recommended": "true (for monitoring)",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Prometheus Metrics Endpoint\n• Function: Enables /metrics endpoint compatible with Prometheus monitoring systems\n• Range: true/false\n• Server Default: false (disabled)\n• Effects: true=monitoring data available, false=no metrics, useful for performance tracking and alerting",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--slots": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "important",
+      "recommended": "true (for transparency)",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Slots Monitoring Endpoint\n• Function: Enables /slots endpoint for monitoring request processing slots and queue status\n• Range: true/false\n• Server Default: false (disabled)\n• Effects: true=slot visibility+transparency, false=no slot monitoring, essential for debugging concurrency",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--props": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "important",
+      "recommended": "true (for transparency)",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Properties Management Endpoint\n• Function: Enables /props endpoint for viewing and modifying server properties at runtime\n• Range: true/false\n• Server Default: false (disabled)\n• Effects: true=runtime configuration changes, false=static config, allows dynamic parameter adjustment",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--embedding": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "important",
+      "recommended": "Toggle based on use case",
+      "ui_widget": "Toggle switch with mode indicator",
+      "tooltip": "Embedding-Only Mode\n• Function: Restricts server to only support embedding operations (no text generation)\n• Range: true/false\n• Server Default: false (full functionality)\n• Effects: true=embedding endpoints only, false=full text generation, use only with dedicated embedding models",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--reranking": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "important",
+      "recommended": "Toggle based on use case",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Document Reranking Endpoint\n• Function: Enables /rerank endpoint for document reranking and relevance scoring operations\n• Range: true/false\n• Server Default: false (disabled)\n• Effects: true=reranking capabilities, false=no reranking, useful for search and retrieval applications",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--no-slots": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable slots monitoring endpoint. Conflicts with --slots - only enable one.",
+      "examples": [
+        true,
+        false
+      ]
+    }
+  },
+  "Multimodal Support": {
+    "--mmproj": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists",
+      "range": "Path to projector file",
+      "ui_widget": "File picker",
+      "tooltip": "Multimodal Projector File\n• Function: Path to multimodal projector file for vision/audio processing capabilities\n• Range: Valid path to projector file\n• Server Default: none\n• Effects: Enables multimodal features, can be omitted if using -hf, see tools/mtmd/README.md",
+      "examples": [
+        "mmproj-model-f16.gguf"
+      ]
+    },
+    "--no-mmproj": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable Multimodal Projector\n• Function: Explicitly prevents loading of multimodal projection layers\n• Range: true/false\n• Server Default: false (auto-detect and load if available)\n• Effects: true=text-only mode, false=auto multimodal support\n• WARNING: Useful when using -hf flag and you want text-only operation",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--mmproj-url": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Valid URL",
+      "range": "Valid HTTP/HTTPS URL",
+      "ui_widget": "Text input with URL validation",
+      "tooltip": "Multimodal Projector URL\n• Function: HTTP/HTTPS URL to download multimodal projector file\n• Range: Valid HTTP/HTTPS URL\n• Server Default: none\n• Effects: Downloads projector for multimodal support, alternative to local file, see tools/mtmd/README.md",
+      "examples": [
+        "https://example.com/mmproj.gguf"
+      ]
+    },
+    "--no-mmproj-offload": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable Multimodal GPU Offload\n• Function: Prevents offloading of multimodal projector operations to GPU\n• Range: true/false\n• Server Default: false (allow GPU offload)\n• Effects: true=projector stays on CPU, false=can use GPU, may reduce GPU memory usage but slower multimodal processing",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--hf-repo-v": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "user/model[:quant] format",
+      "range": "user/model[:quant] format",
+      "ui_widget": "Text input with format validation",
+      "tooltip": "HuggingFace repository for vocoder model in audio generation.",
+      "examples": [
+        "microsoft/speecht5_tts"
+      ]
+    },
+    "--hf-file-v": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Valid filename",
+      "range": "Valid filename",
+      "ui_widget": "Text input",
+      "tooltip": "HuggingFace Vocoder File\n• Function: Specifies exact vocoder model file from HuggingFace repository (for TTS/audio generation)\n• Range: Valid GGUF filename\n• Server Default: none\n• Effects: Selects specific vocoder file, used with audio generation models, alternative to automatic selection",
+      "examples": [
+        "vocoder-model.gguf"
+      ]
+    },
+    "--model-vocoder": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists, audio model format",
+      "range": "Path to vocoder model file",
+      "ui_widget": "File picker",
+      "tooltip": "Path to vocoder model file for audio generation capabilities.",
+      "examples": [
+        "vocoder.gguf"
+      ]
+    },
+    "--tts-use-guide-tokens": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "TTS Guide Tokens\n• Function: Enables guide tokens to improve text-to-speech word recall and pronunciation accuracy\n• Range: true/false\n• Server Default: false (disabled)\n• Effects: true=better TTS accuracy, false=standard TTS, helps with difficult pronunciations and proper nouns",
+      "examples": [
+        true,
+        false
+      ]
+    }
+  },
+  "Context Extension (RoPE/YARN)": {
+    "--rope-scaling": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "none",
+        "linear",
+        "yarn"
+      ],
+      "toggled": false,
+      "priority": "optional",
+      "range": "none, linear, yarn",
+      "ui_widget": "Dropdown selection",
+      "tooltip": "RoPE Frequency Scaling Method\n• Function: Method for scaling RoPE (Rotary Position Embedding) frequencies to extend context\n• Range: none, linear, yarn\n• Server Default: linear (unless specified by model)\n• Effects: none=no scaling, linear=simple scaling, yarn=advanced YaRN algorithm for better quality",
+      "examples": [
+        "linear",
+        "yarn",
+        "none"
+      ]
+    },
+    "--rope-scale": {
+      "default": "",
+      "type": "float",
+      "min": 0.1,
+      "max": 10,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.1-10.0 (recommended)",
+      "ui_widget": "Number spinner with decimal",
+      "tooltip": "RoPE Context Scaling Factor\n• Function: Factor by which to expand the context window using RoPE scaling\n• Range: 0.1 to 10.0 (typically 1.0-8.0)\n• Server Default: 1.0 (no scaling)\n• Effects: 1.0=original context, 2.0=double context, 4.0=4x context, higher=longer but may degrade quality",
+      "examples": [
+        1,
+        2,
+        4,
+        8
+      ]
+    },
+    "--rope-freq-base": {
+      "default": "",
+      "type": "float",
+      "min": 1000,
+      "max": 100000,
+      "toggled": false,
+      "priority": "optional",
+      "range": "1000-100000 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "RoPE Base Frequency\n• Function: Base frequency value used in RoPE calculations for NTK-aware scaling\n• Range: 1000 to 100000 (model-dependent)\n• Server Default: loaded from model\n• Effects: Model-specific value, 10000=common default, affects how position embeddings scale",
+      "examples": [
+        10000,
+        25000,
+        50000
+      ]
+    },
+    "--rope-freq-scale": {
+      "default": "",
+      "type": "float",
+      "min": 0.1,
+      "max": 10,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.1-10.0 (recommended)",
+      "ui_widget": "Number spinner with decimal",
+      "tooltip": "RoPE Frequency Scale Factor\n• Function: Frequency scaling factor that expands context by factor of 1/N\n• Range: 0.1 to 10.0\n• Server Default: 1.0 (no scaling)\n• Effects: 1.0=original, 0.5=double context, 0.25=4x context, inverse relationship to context expansion",
+      "examples": [
+        1,
+        0.5,
+        0.25,
+        0.125
+      ]
+    },
+    "--yarn-orig-ctx": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 131072,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0-131072 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "YaRN Original Context Size\n• Function: Original context size the model was trained on (for YaRN scaling calculations)\n• Range: 0 to 131072 (0 = auto-detect from model)\n• Server Default: 0 (model training context size)\n• Effects: 0=use model default, manual value=override for YaRN calculations, affects scaling quality",
+      "examples": [
+        0,
+        2048,
+        4096,
+        8192
+      ]
+    },
+    "--yarn-ext-factor": {
+      "default": "",
+      "type": "float",
+      "min": -1,
+      "max": 1,
+      "toggled": false,
+      "priority": "optional",
+      "range": "-1.0-1.0 (recommended)",
+      "ui_widget": "Number spinner with decimal",
+      "tooltip": "YaRN Extrapolation Mix Factor\n• Function: Controls the mix between interpolation and extrapolation in YaRN scaling\n• Range: -1.0 to 1.0\n• Server Default: -1.0 (auto)\n• Effects: -1.0=automatic, 0.0=full interpolation, 1.0=full extrapolation, affects context extension quality",
+      "examples": [
+        -1,
+        0,
+        0.5,
+        1
+      ]
+    },
+    "--yarn-attn-factor": {
+      "default": "",
+      "type": "float",
+      "min": 0.1,
+      "max": 2,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.1-2.0 (recommended)",
+      "ui_widget": "Number spinner with decimal",
+      "tooltip": "YaRN Attention Factor\n• Function: YaRN attention magnitude scaling factor (scales sqrt(t) in attention calculation)\n• Range: 0.1 to 2.0\n• Server Default: 1.0\n• Effects: 1.0=no scaling, >1.0=amplified attention, <1.0=dampened attention, affects context extension quality",
+      "examples": [
+        1,
+        1.5,
+        2
+      ]
+    },
+    "--yarn-beta-slow": {
+      "default": "",
+      "type": "float",
+      "min": 0.1,
+      "max": 10,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.1-10.0 (recommended)",
+      "ui_widget": "Number spinner with decimal",
+      "tooltip": "YaRN Beta Slow (Alpha)\n• Function: YaRN high correction dimension parameter (alpha) for frequency scaling\n• Range: 0.1 to 10.0\n• Server Default: 1.0\n• Effects: Controls high-frequency correction in YaRN algorithm, affects quality of long context extension",
+      "examples": [
+        1,
+        2,
+        4
+      ]
+    },
+    "--yarn-beta-fast": {
+      "default": "",
+      "type": "float",
+      "min": 1,
+      "max": 128,
+      "toggled": false,
+      "priority": "optional",
+      "range": "1.0-128.0 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "YaRN Beta Fast (Beta)\n• Function: YaRN low correction dimension parameter (beta) for frequency scaling\n• Range: 1.0 to 128.0\n• Server Default: 32.0\n• Effects: Controls low-frequency correction in YaRN algorithm, affects quality of long context extension",
+      "examples": [
+        16,
+        32,
+        64
+      ]
+    }
+  },
+  "LoRA & Control Vectors": {
+    "--lora": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists",
+      "range": "Path to LoRA adapter file",
+      "ui_widget": "File picker with .gguf filter",
+      "tooltip": "LoRA Adapter File\n• Function: Path to LoRA (Low-Rank Adaptation) adapter file for model fine-tuning\n• Range: Valid path to LoRA adapter file\n• Server Default: none\n• Effects: Applies LoRA modifications to model, can be repeated for multiple adapters, enhances model capabilities",
+      "examples": [
+        "lora-adapter.gguf"
+      ]
+    },
+    "--lora-scaled": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File path and number",
+      "range": "File path and scale factor",
+      "ui_widget": "File picker with scale input",
+      "tooltip": "Scaled LoRA Adapter\n• Function: LoRA adapter with user-defined scaling factor for fine-tuned strength control\n• Range: File path and scale factor (e.g., adapter.gguf 0.8)\n• Server Default: none\n• Effects: Custom scaling allows precise control of LoRA influence, can be repeated for multiple scaled adapters",
+      "examples": [
+        "adapter.gguf 0.8"
+      ]
+    },
+    "--control-vector": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists",
+      "range": "Path to control vector file",
+      "ui_widget": "File picker",
+      "tooltip": "Control Vector File\n• Function: Adds control vector for steering model behavior and outputs\n• Range: Valid path to control vector file\n• Server Default: none\n• Effects: Influences model behavior/style, can be repeated for multiple vectors, provides fine-grained control",
+      "examples": [
+        "control.gguf"
+      ]
+    },
+    "--control-vector-scaled": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File path and number",
+      "range": "File path and scale factor",
+      "ui_widget": "File picker with scale input",
+      "tooltip": "Scaled Control Vector\n• Function: Control vector with user-defined scaling factor for precise influence control\n• Range: File path and scale factor (e.g., control.gguf 1.2)\n• Server Default: none\n• Effects: Custom scaling controls vector influence strength, can be repeated for multiple scaled vectors",
+      "examples": [
+        "control.gguf 1.2"
+      ]
+    },
+    "--control-vector-layer-range": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Range format start-end",
+      "range": "Format: start-end",
+      "ui_widget": "Text input with range validation",
+      "tooltip": "Control Vector Layer Range\n• Function: Specifies which model layers to apply control vector(s) to (start and end inclusive)\n• Range: START-END format (e.g., 0-10)\n• Server Default: all layers\n• Effects: Restricts vector application to specific layers, allows targeted model steering, 0-10=first 11 layers",
+      "examples": [
+        "0-10",
+        "5-15"
+      ]
+    },
+    "--lora-init-without-apply": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "LoRA Deferred Application\n• Function: Loads LoRA adapters without immediately applying them to the model\n• Range: true/false\n• Server Default: false (apply immediately)\n• Effects: true=load but don't apply, false=load and apply, allows dynamic application via POST /lora-adapters endpoint",
+      "examples": [
+        true,
+        false
+      ]
+    }
+  },
+  "Speculative Decoding": {
+    "--draft-max": {
+      "default": "",
+      "type": "int",
+      "min": 1,
+      "max": 64,
+      "toggled": false,
+      "priority": "optional",
+      "range": "1-64 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "Draft Token Count (Max)\n• Function: Maximum number of tokens to draft ahead in speculative decoding for acceleration\n• Range: 1 to 64\n• Server Default: 16\n• Effects: Higher=more speculative tokens+potential speed boost, lower=less speculation, requires draft model",
+      "examples": [
+        8,
+        16,
+        32,
+        64
+      ]
+    },
+    "--draft-min": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 32,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0-32 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "Draft Token Count (Min)\n• Function: Minimum number of tokens to draft in speculative decoding\n• Range: 0 to 32\n• Server Default: 0\n• Effects: Sets lower bound for drafting, 0=no minimum, higher=guaranteed minimum speculation level",
+      "examples": [
+        0,
+        4,
+        8,
+        16
+      ]
+    },
+    "--draft-p-min": {
+      "default": "",
+      "type": "float",
+      "min": 0.1,
+      "max": 1,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.1-1.0 (recommended)",
+      "ui_widget": "Number spinner with decimal",
+      "tooltip": "Draft Probability Threshold\n• Function: Minimum probability threshold for accepting draft tokens (greedy decoding)\n• Range: 0.1 to 1.0\n• Server Default: 0.8\n• Effects: Higher=more conservative acceptance, lower=more aggressive acceptance, affects speed vs quality trade-off",
+      "examples": [
+        0.5,
+        0.8,
+        0.9,
+        0.95
+      ]
+    },
+    "--model-draft": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists, .gguf extension",
+      "range": "Path to draft model file",
+      "ui_widget": "File picker with .gguf filter",
+      "tooltip": "Draft Model File\n• Function: Path to smaller/faster draft model used for speculative decoding acceleration\n• Range: Valid path to GGUF model file\n• Server Default: unused (no speculative decoding)\n• Effects: Required for speculative decoding, should be smaller/faster than main model for speed benefits",
+      "examples": [
+        "draft-model.gguf"
+      ]
+    },
+    "--ctx-size-draft": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 32768,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0-32768 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "Draft Model Context Size\n• Function: Context window size specifically for the draft model\n• Range: 0 to 32768+ (0 = load from model metadata)\n• Server Default: 0 (loaded from model)\n• Effects: 0=use model default, manual value=override draft model context, affects draft quality",
+      "examples": [
+        0,
+        2048,
+        4096
+      ]
+    },
+    "--device-draft": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Device list format",
+      "range": "Comma-separated device IDs",
+      "ui_widget": "Multi-select with device detection",
+      "tooltip": "Draft Model GPU Devices\n• Function: Comma-separated list of GPU devices for draft model offloading\n• Range: Device IDs (0,1,2...) or 'none'\n• Server Default: none (CPU)\n• Effects: Specifies which GPUs to use for draft model, 'none'=CPU only, separate from main model devices",
+      "examples": [
+        "0",
+        "1",
+        "none"
+      ]
+    },
+    "--n-gpu-layers-draft": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 200,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0-200 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "Draft Model GPU Layers\n• Function: Number of draft model layers to offload to GPU VRAM\n• Range: 0 to 200 (model-dependent)\n• Server Default: 0 (CPU-only)\n• Effects: Higher=more GPU utilization for draft model, 0=CPU only, independent of main model layer offloading",
+      "examples": [
+        0,
+        10,
+        20,
+        50
+      ]
+    },
+    "--hf-repo-draft": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "user/model[:quant] format",
+      "range": "user/model[:quant] format",
+      "ui_widget": "Text input with format validation",
+      "tooltip": "Draft Model HuggingFace Repository\n• Function: HuggingFace repository for downloading draft model (same format as --hf-repo)\n• Range: <user>/<model>[:quant] format\n• Server Default: unused\n• Effects: Auto-downloads draft model from HF, alternative to local file, should be smaller/faster than main model",
+      "examples": [
+        "microsoft/DialoGPT-small:q4_k_m"
+      ]
+    }
+  },
+  "GPU/Hardware Advanced": {
+    "--device": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Device list format",
+      "range": "Comma-separated device IDs",
+      "ui_widget": "Multi-select with device detection",
+      "tooltip": "GPU Device Selection\n• Function: Comma-separated list of GPU devices to use for model offloading\n• Range: Device IDs (0,1,2...) or 'none'\n• Server Default: automatic detection\n• Effects: Restricts GPU usage to specified devices, 'none'=CPU-only, use --list-devices to see available",
+      "examples": [
+        "0",
+        "0,1",
+        "0,1,2",
+        "none"
+      ]
+    },
+    "--tensor-split": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Float list format",
+      "range": "Comma-separated floats",
+      "ui_widget": "Text input with validation",
+      "tooltip": "Tensor Split Proportions\n• Function: Fraction of model to offload to each GPU in multi-GPU setup\n• Range: Comma-separated proportions (e.g., 3,1 = 75%/25%)\n• Server Default: equal distribution\n• Effects: Controls model distribution across GPUs, proportional to values, 3,1=75%/25%, 2,1,1=50%/25%/25%",
+      "examples": [
+        "1,1",
+        "3,1",
+        "2,1,1"
+      ]
+    },
+    "--numa": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "",
+        "distribute",
+        "isolate",
+        "numactl"
+      ],
+      "toggled": false,
+      "priority": "optional",
+      "range": "distribute, isolate, numactl, or empty",
+      "ui_widget": "Dropdown with empty option",
+      "tooltip": "NUMA Optimizations\n• Function: NUMA (Non-Uniform Memory Access) system optimizations for multi-socket systems\n• Range: distribute, isolate, numactl, or empty\n• Server Default: none\n• Effects: distribute=spread across nodes, isolate=single node only, numactl=use system CPU map, helps performance on NUMA systems",
+      "examples": [
+        "distribute",
+        "isolate",
+        "numactl"
+      ]
+    },
+    "--cpu-mask": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Hexadecimal format",
+      "range": "Hexadecimal format",
+      "ui_widget": "Text input with hex validation",
+      "tooltip": "CPU Affinity Mask\n• Function: Hexadecimal CPU affinity mask specifying which CPU cores to use\n• Range: Arbitrarily long hexadecimal value\n• Server Default: empty (no restriction)\n• Effects: Restricts CPU usage to specified cores, complements --cpu-range, 0x1=core 0, 0xFF=cores 0-7",
+      "examples": [
+        "0x1",
+        "0xFF",
+        "0x0F"
+      ]
+    },
+    "--cpu-range": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Range format lo-hi",
+      "range": "Format: start-end (e.g., '0-7')",
+      "ui_widget": "Text input with range validation",
+      "tooltip": "CPU Core Range\n• Function: Range of CPU cores for thread affinity (complements --cpu-mask)\n• Range: lo-hi format (e.g., 0-7)\n• Server Default: no restriction\n• Effects: Restricts CPU usage to specified core range, 0-3=first 4 cores, 4-7=next 4 cores",
+      "examples": [
+        "0-3",
+        "4-7",
+        "0-15"
+      ]
+    },
+    "--cpu-strict": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Strict CPU Placement\n• Function: Enables strict CPU placement for better performance isolation\n• Range: true/false (or 0/1)\n• Server Default: false (0)\n• Effects: true=strict core binding, false=flexible scheduling, improves performance consistency on NUMA systems",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--cpu-mask-batch": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Hexadecimal format",
+      "range": "Hexadecimal format",
+      "ui_widget": "Text input with hex validation",
+      "tooltip": "CPU affinity mask for batch processing. Same format as --cpu-mask.",
+      "examples": [
+        "0xFF",
+        "0x0F"
+      ]
+    },
+    "--cpu-range-batch": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Range format lo-hi",
+      "range": "Format: start-end (e.g., '0-7')",
+      "ui_widget": "Text input with range validation",
+      "tooltip": "CPU core range for batch processing. Same format as --cpu-range.",
+      "examples": [
+        "0-7",
+        "8-15"
+      ]
+    },
+    "--cpu-strict-batch": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Use strict CPU placement for batch processing.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--poll-batch": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Use polling for batch work detection. Inherits from --poll setting.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--prio-batch": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 3,
+      "toggled": false,
+      "priority": "optional",
+      "range": "-1-3 (low, normal, medium, high, realtime)",
+      "ui_widget": "Number spinner with labels",
+      "tooltip": "Batch Process Priority\n• Function: Sets process priority specifically for batch operations (same values as --prio)\n• Range: -1 to 3 (-1=low, 0=normal, 1=medium, 2=high, 3=realtime)\n• Server Default: varies by system\n• Effects: Higher=more CPU priority for batch processing, may improve throughput but affect system responsiveness",
+      "examples": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "Memory Management": {
+    "--mlock": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Memory Locking\n• Function: Forces system to keep model permanently in RAM, preventing swapping or compression\n• Range: true/false\n• Server Default: false (allow swapping)\n• Effects: true=guaranteed RAM residency+consistent performance, false=may swap to disk, requires sufficient RAM",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--no-mmap": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable Memory Mapping\n• Function: Disables memory-mapped file access, loading model directly into RAM\n• Range: true/false\n• Server Default: false (use memory mapping)\n• Effects: true=slower load but may reduce pageouts, false=faster load via mmap, useful when not using mlock",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--no-kv-offload": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable KV Cache Offload\n• Function: Prevents KV cache from being offloaded to GPU memory\n• Range: true/false\n• Server Default: false (allow GPU offload)\n• Effects: true=KV cache stays in CPU RAM, false=can use GPU VRAM for cache, may reduce GPU memory usage",
+      "examples": [
+        true,
+        false
+      ]
+    }
+  },
+  "Security & Authentication": {
+    "--api-key": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Non-empty string",
+      "range": "API key token",
+      "ui_widget": "Password input",
+      "tooltip": "API Authentication Key\n• Function: API key required for client authentication and request authorization\n• Range: Any non-empty string\n• Server Default: none (no authentication)\n• Effects: Enables API security, clients must use Authorization: Bearer <key> header, can use LLAMA_API_KEY env var",
+      "examples": [
+        "sk-1234567890abcdef"
+      ]
+    },
+    "--api-key-file": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists",
+      "range": "Path to API key file",
+      "ui_widget": "File picker",
+      "tooltip": "API Key File\n• Function: Path to file containing multiple valid API keys (newline-delimited)\n• Range: Valid path to readable text file\n• Server Default: none\n• Effects: Loads multiple API keys from file, any key in file grants access, alternative to single --api-key",
+      "examples": [
+        "api_keys.txt"
+      ]
+    },
+    "--ssl-key-file": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists",
+      "range": "Path to SSL private key file",
+      "ui_widget": "File picker with .pem filter",
+      "tooltip": "SSL Private Key File\n• Function: Path to PEM-encoded SSL private key file for HTTPS encryption\n• Range: Valid path to .pem/.key file\n• Server Default: none (HTTP only)\n• Effects: Enables HTTPS, requires matching SSL certificate, secures all communications",
+      "examples": [
+        "server.key",
+        "ssl/private.pem"
+      ]
+    },
+    "--ssl-cert-file": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists",
+      "range": "Path to SSL certificate file",
+      "ui_widget": "File picker with .pem/.crt filter",
+      "tooltip": "SSL Certificate File\n• Function: Path to PEM-encoded SSL certificate file for HTTPS encryption\n• Range: Valid path to .pem/.crt file\n• Server Default: none (HTTP only)\n• Effects: Enables HTTPS, requires matching SSL private key, validates server identity",
+      "examples": [
+        "server.crt",
+        "ssl/cert.pem"
+      ]
+    }
+  },
+  "Logging & Debug": {
+    "--log-disable": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable Logging\n• Function: Completely disables all logging output for maximum performance\n• Range: true/false\n• Server Default: false (logging enabled)\n• Effects: true=no logs+minimal overhead, false=normal logging, useful for production performance",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--log-file": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Writable path",
+      "range": "Path to log file",
+      "ui_widget": "File picker for save",
+      "tooltip": "Log File Output\n• Function: Redirects log output to specified file instead of stdout/stderr\n• Range: Valid writable file path\n• Server Default: stdout/stderr\n• Effects: Enables persistent logging, file rotation not included, useful for debugging and monitoring",
+      "examples": [
+        "server.log",
+        "logs/llama-server.log"
+      ]
+    },
+    "--verbose": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Verbose Logging (Debug)\n• Function: Sets verbosity level to infinity (logs all messages useful for debugging)\n• Range: true/false\n• Server Default: false (normal verbosity)\n• Effects: true=maximum debug output, false=normal logging, useful for troubleshooting issues",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--log-colors": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Colored Log Output\n• Function: Enables colored log output for improved readability and message categorization\n• Range: true/false\n• Server Default: false (no colors)\n• Effects: true=colored logs, false=plain text, can use LLAMA_LOG_COLORS env var, improves debugging experience",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--log-timestamps": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Log Timestamps\n• Function: Includes timestamps in all log messages for temporal tracking\n• Range: true/false\n• Server Default: false (no timestamps)\n• Effects: true=timestamped logs, false=no timestamps, can use LLAMA_LOG_TIMESTAMPS env var, essential for debugging timing issues",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--log-verbosity": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 5,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0-5 (recommended)",
+      "ui_widget": "Number spinner",
+      "tooltip": "Log Verbosity Level\n• Function: Sets verbosity threshold - messages with higher verbosity are ignored\n• Range: 0 to 5 (0=errors only, 5=all messages)\n• Server Default: varies\n• Effects: Lower=fewer messages, higher=more debug info, can use LLAMA_LOG_VERBOSITY env var",
+      "examples": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "--log-prefix": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Enable prefix in log messages for better categorization.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--verbose-prompt": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Print verbose prompt before generation for debugging.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--list-devices": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Print list of available devices and exit. Utility function.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--check-tensors": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Check model tensor data for invalid values during loading.",
+      "examples": [
+        true,
+        false
+      ]
+    }
+  },
+  "Advanced Server Config": {
+    "--no-context-shift": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable Context Shifting\n• Function: Disables context shift mechanism during infinite text generation\n• Range: true/false\n• Server Default: false (context shift enabled)\n• Effects: true=no context management, false=automatic context shifting, may cause memory issues with very long generations",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--special": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Special Tokens Output\n• Function: Enables output of special tokens (BOS, EOS, etc.) for debugging and analysis\n• Range: true/false\n• Server Default: false (hidden special tokens)\n• Effects: true=visible special tokens, false=hidden tokens, useful for debugging tokenization issues",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--no-warmup": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Skip Model Warmup\n• Function: Skips the initial model warmup run that prepares the model for inference\n• Range: true/false\n• Server Default: false (perform warmup)\n• Effects: true=faster startup but cold first inference, false=warmed up model ready for optimal performance",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--spm-infill": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "SPM Infill Pattern\n• Function: Uses Suffix/Prefix/Middle pattern instead of Prefix/Suffix/Middle for fill-in-middle tasks\n• Range: true/false\n• Server Default: false (PSM pattern)\n• Effects: true=SPM pattern, false=PSM pattern, some models prefer SPM ordering for better infill quality",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--pooling": {
+      "default": "",
+      "type": "enum",
+      "options": [
+        "",
+        "none",
+        "mean",
+        "cls",
+        "last",
+        "rank"
+      ],
+      "toggled": false,
+      "priority": "optional",
+      "range": "none, mean, cls, last, rank, or empty",
+      "ui_widget": "Dropdown with empty option",
+      "tooltip": "Embedding Pooling Method\n• Function: Pooling strategy for combining token embeddings into sentence/document embeddings\n• Range: none, mean, cls, last, rank, or empty\n• Server Default: model default (if unspecified)\n• Effects: mean=average pooling, cls=CLS token, last=last token, none/rank=specialized, empty=model decides",
+      "examples": [
+        "mean",
+        "cls",
+        "last"
+      ]
+    },
+    "--jinja": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Enable Custom Jinja Templates\n• Function: Allows custom Jinja chat templates beyond built-in ones\n• Range: true/false\n• Server Default: false (built-in only)\n• Effects: true=accept any Jinja syntax in --chat-template, false=only built-in templates like chatml/llama3\n• Usage: Enable this flag before using custom Jinja templates in --chat-template or --chat-template-file",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--chat-template": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Valid Jinja syntax",
+      "range": "Jinja template string",
+      "ui_widget": "Text area",
+      "tooltip": "Custom Chat Template\n• Function: Sets custom Jinja chat template that overrides model's built-in conversation formatting\n• Range: Jinja template string or built-in template names\n• Server Default: template from model metadata\n• Effects: Controls conversation formatting, built-in names: chatml, llama3, deepseek, etc., or custom Jinja syntax\n• WARNING: If suffix/prefix specified, template will be disabled, only common templates accepted unless --jinja set",
+      "examples": [
+        "{{bos_token}}{{message.content}}{{eos_token}}",
+        "chatml",
+        "llama3",
+        "deepseek"
+      ]
+    },
+    "--chat-template-file": {
+      "default": "",
+      "type": "file_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "File exists",
+      "range": "Path to template file",
+      "ui_widget": "File picker",
+      "tooltip": "Chat Template File\n• Function: Loads custom Jinja chat template from file (alternative to inline --chat-template)\n• Range: Valid path to template file\n• Server Default: model metadata template\n• Effects: Overrides model template, useful for complex templates, see --chat-template for format details",
+      "examples": [
+        "templates/custom.jinja"
+      ]
+    },
+    "--chat-template-kwargs": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Valid JSON format",
+      "range": "JSON string",
+      "ui_widget": "Text input",
+      "tooltip": "Chat Template Arguments (CLI Flag)\n• Function: Pass template parameters to server via command line argument\n• Format: JSON string for --chat-template-kwargs flag\n• Primary Use: GPT-OSS models and custom Jinja templates\n• Examples:\n  - {\"reasoning_effort\": \"low\"} - minimal thinking\n  - {\"reasoning_effort\": \"medium\"} - balanced reasoning (default)\n  - {\"reasoning_effort\": \"high\"} - maximum reasoning depth\n• Usage: Enter JSON string that gets passed as CLI argument\n• Technical: Equivalent to --chat-template-kwargs '{\"key\": \"value\"}' in command line",
+      "examples": [
+        "{\"reasoning_effort\": \"high\"}",
+        "{\"reasoning_effort\": \"low\"}",
+        "{\"reasoning_effort\": \"medium\"}",
+        "{\"enable_thinking\": false}"
+      ]
+    },
+    "--no-prefill-assistant": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable Assistant Prefill\n• Function: Disables prefilling of assistant response when last message is from assistant\n• Range: true/false\n• Server Default: false (prefill enabled)\n• Effects: true=treat assistant messages as complete, false=prefill assistant responses, affects conversation flow",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--slot-prompt-similarity": {
+      "default": "",
+      "type": "float",
+      "min": 0,
+      "max": 1,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0.0-1.0 (recommended)",
+      "ui_widget": "Number spinner with decimal",
+      "tooltip": "Slot Prompt Similarity\n• Function: Similarity threshold for reusing existing processing slots with matching prompts\n• Range: 0.0 to 1.0 (0.0 = disabled, 1.0 = exact match)\n• Server Default: 0.5\n• Effects: Higher=stricter matching, lower=more reuse, 0.0=no reuse, optimization for repeated similar prompts",
+      "examples": [
+        0,
+        0.3,
+        0.5,
+        0.8,
+        1
+      ]
+    },
+    "--slot-save-path": {
+      "default": "",
+      "type": "directory_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Writable directory",
+      "range": "Path to directory",
+      "ui_widget": "Directory picker",
+      "tooltip": "Slot Save Directory\n• Function: Directory path for saving slot KV cache data for persistence across restarts\n• Range: Valid writable directory path\n• Server Default: disabled (no saving)\n• Effects: Enables slot persistence, faster warmup for repeated sessions, requires sufficient disk space",
+      "examples": [
+        "cache/",
+        "slots/",
+        "/tmp/llama-slots"
+      ]
+    },
+    "--path": {
+      "default": "",
+      "type": "directory_path",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "Readable directory",
+      "range": "Path to static files directory",
+      "ui_widget": "Directory picker",
+      "tooltip": "Static Files Path\n• Function: Directory path for serving static files through the built-in web server\n• Range: Valid readable directory path\n• Server Default: empty (no static files)\n• Effects: Enables serving HTML/CSS/JS files, useful for custom web interfaces, complements API endpoints",
+      "examples": [
+        "public/",
+        "www/",
+        "static/"
+      ]
+    },
+    "--override-tensor": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "pattern=type pairs",
+      "range": "pattern=type format",
+      "ui_widget": "Text input with validation",
+      "tooltip": "Override tensor buffer types. Format: pattern=type,pattern=type.",
+      "examples": [
+        "attention=f16",
+        "feed_forward=q8_0"
+      ]
+    },
+    "--override-kv": {
+      "default": "",
+      "type": "text",
+      "toggled": false,
+      "priority": "optional",
+      "validation": "key=type:value format",
+      "range": "KEY=TYPE:VALUE format",
+      "ui_widget": "Text input with validation",
+      "tooltip": "Override Model Metadata\n• Function: Advanced option to override specific model metadata values by key\n• Range: KEY=TYPE:VALUE format (types: int, float, bool, str)\n• Server Default: use model metadata as-is\n• Effects: Can modify tokenizer settings, model behavior, use carefully as it can break model functionality",
+      "examples": [
+        "tokenizer.ggml.add_bos_token=bool:false"
+      ]
+    },
+    "--no-perf": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable internal libllama performance timings for minimal overhead.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--escape": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Process escape sequences like \\n, \\r, \\t in input text.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--no-escape": {
+      "default": "",
+      "type": "bool",
+      "toggled": false,
+      "priority": "optional",
+      "range": "true/false",
+      "ui_widget": "Toggle switch",
+      "tooltip": "Disable escape sequence processing. Conflicts with --escape.",
+      "examples": [
+        true,
+        false
+      ]
+    },
+    "--prio": {
+      "default": "",
+      "type": "int",
+      "min": -1,
+      "max": 3,
+      "toggled": false,
+      "priority": "optional",
+      "range": "-1-3 (low, normal, medium, high, realtime)",
+      "ui_widget": "Number spinner with labels",
+      "tooltip": "Process Priority\n• Function: Sets overall process priority for the llama server\n• Range: -1 to 3 (-1=low, 0=normal, 1=medium, 2=high, 3=realtime)\n• Server Default: 0 (normal)\n• Effects: Higher=more CPU scheduling priority, 3=realtime can affect system stability, use carefully",
+      "examples": [
+        0,
+        1,
+        2
+      ]
+    },
+    "--poll": {
+      "default": "",
+      "type": "int",
+      "min": 0,
+      "max": 100,
+      "toggled": false,
+      "priority": "optional",
+      "range": "0-100 (0=no polling, 100=max polling)",
+      "ui_widget": "Number spinner with percentage",
+      "tooltip": "Polling level for work detection. 0=no polling, higher=more responsive.",
+      "examples": [
+        0,
+        25,
+        50,
+        75,
+        100
+      ]
+    }
+  }
+}

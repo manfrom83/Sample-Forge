@@ -1,0 +1,499 @@
+{
+  "Independent Samplers (Single Parameter)": {
+    "temperature": {
+      "default": 0.8,
+      "min": 0.0,
+      "max": 2.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Temperature Sampler\n• Function: Controls randomness and creativity in text generation by scaling the probability distribution over tokens\n• Range: 0.0 to 2.0 (0.0 = completely deterministic, 1.0 = normal randomness, 2.0 = maximum creativity)\n• Server Default: 0.8\n• Effects: Lower values produce more focused/repetitive text, higher values increase diversity and unpredictability\n• Sampler Name: 'temperature' (put in samplers array to activate)"
+    },
+    "top_k": {
+      "default": 40,
+      "min": 0,
+      "max": 1000,
+      "type": "int",
+      "toggled": true,
+      "tooltip": "Top-K Sampler\n• Function: Limits token selection to the K most probable tokens, reducing low-probability choices\n• Range: 0 to 1000 (0 = disabled, higher values = more token choices allowed)\n• Server Default: 40\n• Effects: Lower values focus generation on high-confidence words, higher values allow more vocabulary diversity\n• Sampler Name: 'top_k' (put in samplers array to activate)"
+    },
+    "top_p": {
+      "default": 0.95,
+      "min": 0.0,
+      "max": 1.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Top-P (Nucleus) Sampler\n• Function: Selects tokens from smallest set that contains P probability mass, providing dynamic vocabulary control\n• Range: 0.0 to 1.0 (higher values = larger token selection pool)\n• Server Default: 0.9\n• Effects: Lower values create more focused text, higher values allow broader vocabulary choices\n• Sampler Name: 'top_p' (put in samplers array to activate)"
+    },
+    "min_p": {
+      "default": 0.05,
+      "min": 0.0,
+      "max": 1.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Min-P Sampler\n• Function: Sets minimum probability threshold relative to the most likely token, filtering out unlikely choices\n• Range: 0.0 to 1.0 (0.0 = disabled, higher values = stricter filtering)\n• Server Default: 0.1\n• Effects: Higher values focus on high-confidence tokens, lower values allow more diverse but potentially incoherent choices\n• Sampler Name: 'min_p' (put in samplers array to activate)"
+    },
+    "typical_p": {
+      "default": 1.0,
+      "min": 0.0,
+      "max": 1.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Typical Sampler\n• Function: Selects tokens with typical probability values, avoiding both overly predictable and overly surprising choices\n• Range: 0.0 to 1.0 (1.0 = disabled, lower values = more typical selection)\n• Server Default: 1.0 (disabled)\n• Effects: Can produce more natural-sounding text by avoiding extreme probability values\n• Sampler Name: 'typ_p' (put in samplers array to activate)"
+    },
+    "top_n_sigma": {
+      "default": -1.0,
+      "min": -1.0,
+      "max": 2.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Top-N-Sigma Sampler\n• Function: Statistical sampling that selects tokens based on their standard deviation from the mean probability\n• Range: -1.0 to 2.0 (-1.0 = disabled, positive values = strictness level)\n• Server Default: -1.0 (disabled)\n• Effects: Lower values create more predictable text, higher values allow more statistical variation\n• Sampler Name: 'top_n_sigma' (put in samplers array to activate)"
+    },
+    "mirostat": {
+      "default": 0,
+      "options": [
+        0,
+        1,
+        2
+      ],
+      "type": "enum",
+      "toggled": true,
+      "tooltip": "Mirostat Sampler\n• Function: Advanced sampling method that maintains consistent text perplexity by adjusting tau parameter\n• Range: 0, 1, or 2 (0 = disabled, 1 = Mirostat v1, 2 = Mirostat v2)\n• Server Default: 0 (disabled)\n• Effects: Produces more consistent text quality by maintaining target entropy levels\n• WARNING: When enabled, overrides top-k, top-p, and typical sampling methods\n• Sampler Name: 'mirostat' (put in samplers array to activate)"
+    }
+  },
+  "Independent Samplers (Multi-Parameter)": {
+    "dry_multiplier": {
+      "default": 0.0,
+      "min": 0.0,
+      "max": 5.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "DRY Sampler (Main Control)\n• Function: Advanced repetition penalty that penalizes sequences of repeated tokens rather than individual tokens\n• Range: 0.0 to 5.0 (0.0 = disabled, higher values = stronger sequence penalty)\n• Server Default: 0.0 (disabled)\n• Effects: Reduces repetitive patterns in generated text while maintaining coherence better than simple repeat penalty\n• Sampler Name: 'dry' (put in samplers array to activate)\n• Requires: dry_base, dry_allowed_length, dry_penalty_last_n, dry_sequence_breakers parameters"
+    },
+    "xtc_probability": {
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "XTC Sampler (Main Control)\n• Function: Probabilistically excludes the most likely tokens to increase text diversity and creativity\n• Range: 0.0 to 1.0 (0.0 = disabled, higher values = more exclusion of top choices)\n• Server Default: 0.0 (disabled)\n• Effects: Can produce more creative and less predictable text by avoiding obvious token choices\n• Sampler Name: 'xtc' (put in samplers array to activate)\n• Requires: xtc_threshold parameter for optimal effectiveness"
+    },
+    "dynatemp_range": {
+      "default": 0.0,
+      "min": 0.0,
+      "max": 2.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Dynamic Temperature Sampler (Main Control)\n• Function: Dynamically adjusts temperature based on token probability entropy for adaptive randomness\n• Range: 0.0 to 2.0 (0.0 = disabled, higher values = wider temperature variation)\n• Server Default: 0.0 (disabled)\n• Effects: Lower entropy contexts get lower temperature, higher entropy contexts get higher temperature\n• Sampler Name: 'dynatemp' (put in samplers array to activate)\n• Requires: dynatemp_exponent parameter for fine control"
+    },
+    "repeat_penalty": {
+      "default": 1.1,
+      "min": 0.0,
+      "max": 2.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Penalties Sampler (Main Control)\n• Function: Penalizes repeat sequences to reduce repetitive patterns\n• Range: 0.0 to 2.0 (1.0 = no penalty, higher values = stronger anti-repetition)\n• Server Default: 1.0 (disabled)\n• Effects: Values above 1.0 discourage repetition, values below 1.0 encourage repetition\n• WARNING: Too high values can break coherence and cause unnatural vocabulary choices\n• Sampler Name: 'penalties' (put in samplers array to activate)\n• Controls: repeat_penalty, frequency_penalty, presence_penalty, repeat_last_n, penalize_nl"
+    }
+  },
+  "Penalties Sampler Parameters": {
+    "frequency_penalty": {
+      "default": 0.0,
+      "min": -2.0,
+      "max": 2.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Frequency Penalty (Penalties Sampler Parameter)\n• Function: Penalizes tokens based on their frequency in the preceding text (linear scaling)\n• Range: -2.0 to 2.0 (0.0 = no penalty, positive = discourage frequent tokens)\n• Server Default: 0.0\n• Effects: Higher values reduce repetition by penalizing frequently used tokens\n• Controlled By: 'penalties' sampler (must be in samplers array)"
+    },
+    "presence_penalty": {
+      "default": 0.0,
+      "min": -2.0,
+      "max": 2.0,
+      "type": "float",
+      "toggled": true,
+      "tooltip": "Presence Penalty (Penalties Sampler Parameter)\n• Function: Penalizes tokens based on their presence in the preceding text (binary scaling)\n• Range: -2.0 to 2.0 (0.0 = no penalty, positive = discourage repeated tokens)\n• Server Default: 0.0\n• Effects: Higher values encourage vocabulary diversity by penalizing any token that has already appeared\n• Controlled By: 'penalties' sampler (must be in samplers array)"
+    },
+    "repeat_last_n": {
+      "default": 64,
+      "min": -1,
+      "max": 1000,
+      "type": "int",
+      "toggled": true,
+      "tooltip": "Repeat Last N Tokens (Penalties Sampler Parameter)\n• Function: Number of recent tokens to consider when applying repeat penalty\n• Range: -1 to 1000 (-1 = use full context, 0 = disable repeat penalty)\n• Server Default: 64\n• Effects: Larger values consider more history for repetition detection, smaller values focus on recent tokens\n• Controlled By: 'penalties' sampler (must be in samplers array)"
+    },
+    "penalize_nl": {
+      "default": false,
+      "type": "bool",
+      "toggled": false,
+      "tooltip": "Penalize Newlines (Penalties Sampler Parameter)\n• Function: Whether to apply repeat penalty to newline characters\n• Range: true or false\n• Server Default: false\n• Effects: true applies repeat penalty to newlines, false excludes them from repetition penalties\n• Controlled By: 'penalties' sampler (must be in samplers array)"
+    }
+  },
+  "DRY Sampler Parameters": {
+    "dry_base": {
+      "default": 1.75,
+      "min": 1.0,
+      "max": 4.0,
+      "type": "float",
+      "toggled": false,
+      "tooltip": "DRY Sampling Base (DRY Sampler Parameter)\n• Function: Base value for calculating DRY penalty strength, controls exponential scaling of sequence penalties\n• Range: 1.0 to 4.0 (higher values = stronger exponential penalty growth)\n• Server Default: 1.75\n• Effects: Higher values create stronger penalties for longer repeated sequences\n• Controlled By: 'dry' sampler (must be in samplers array and dry_multiplier > 0.0)"
+    },
+    "dry_allowed_length": {
+      "default": 2,
+      "min": 0,
+      "max": 10,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "DRY Allowed Length (DRY Sampler Parameter)\n• Function: Minimum sequence length that is allowed to repeat without penalty\n• Range: 0 to 10 (0 = penalize all repetitions, higher values = allow short repetitions)\n• Server Default: 2\n• Effects: Sequences shorter than this length can repeat freely, longer sequences get penalized\n• Controlled By: 'dry' sampler (must be in samplers array and dry_multiplier > 0.0)"
+    },
+    "dry_penalty_last_n": {
+      "default": -1,
+      "min": -1,
+      "max": 1000,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "DRY Penalty Last N (DRY Sampler Parameter)\n• Function: Number of recent tokens to consider for DRY sequence repetition detection\n• Range: -1 to 1000 (-1 = use full context, 0 = disable DRY)\n• Server Default: -1 (full context)\n• Effects: Larger values detect repetitions across more history, smaller values focus on recent patterns\n• Controlled By: 'dry' sampler (must be in samplers array and dry_multiplier > 0.0)"
+    },
+    "dry_sequence_breakers": {
+      "default": [
+        "\\n",
+        ":",
+        "\"",
+        "*"
+      ],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "DRY Sequence Breakers (DRY Sampler Parameter)\n• Function: Array of strings that break DRY sequence matching, preventing penalty across these boundaries\n• Range: Array of strings (e.g., [\\\"\\\n\\\", \\\":\\\", \\\"\\\\\\\"\\\", \\\"*\\\"])\n• Server Default: [\\\"\\\n\\\", \\\":\\\", \\\"\\\\\\\"\\\", \\\"*\\\"]\n• Effects: Sequences are not considered repetitive if separated by these break characters\n• Controlled By: 'dry' sampler (must be in samplers array and dry_multiplier > 0.0)"
+    }
+  },
+  "XTC Sampler Parameters": {
+    "xtc_threshold": {
+      "default": 0.1,
+      "min": 0.0,
+      "max": 1.0,
+      "type": "float",
+      "toggled": false,
+      "tooltip": "XTC Threshold (XTC Sampler Parameter)\n• Function: Probability threshold for XTC (eXclude Top Choices) sampling, determines when to exclude top tokens\n• Range: 0.0 to 1.0 (higher values = exclude fewer top choices)\n• Server Default: 0.1\n• Effects: Lower values exclude more top choices, increasing creativity but potentially reducing coherence\n• Controlled By: 'xtc' sampler (must be in samplers array and xtc_probability > 0.0)"
+    }
+  },
+  "Dynamic Temperature Parameters": {
+    "dynatemp_exponent": {
+      "default": 1.0,
+      "min": 0.1,
+      "max": 5.0,
+      "type": "float",
+      "toggled": false,
+      "tooltip": "Dynamic Temperature Exponent (Dynamic Temperature Sampler Parameter)\n• Function: Controls the curve shape for dynamic temperature adjustment based on entropy\n• Range: 0.1 to 5.0 (1.0 = linear, higher = more aggressive adjustment)\n• Server Default: 1.0\n• Effects: Higher values create more dramatic temperature changes based on context entropy\n• Controlled By: 'dynatemp' sampler (must be in samplers array and dynatemp_range > 0.0)"
+    }
+  },
+  "Mirostat Parameters": {
+    "mirostat_tau": {
+      "default": 5.0,
+      "min": 1.0,
+      "max": 10.0,
+      "type": "float",
+      "toggled": false,
+      "tooltip": "Mirostat Tau (Mirostat Sampler Parameter)\n• Function: Target entropy level for Mirostat algorithm, controls desired text unpredictability\n• Range: 1.0 to 10.0 (higher values = more diverse/unpredictable text)\n• Server Default: 5.0\n• Effects: Algorithm adjusts temperature to maintain this target entropy level\n• Controlled By: 'mirostat' sampler (must be in samplers array and mirostat = 1 or 2)"
+    },
+    "mirostat_eta": {
+      "default": 0.1,
+      "min": 0.01,
+      "max": 1.0,
+      "type": "float",
+      "toggled": false,
+      "tooltip": "Mirostat Eta (Mirostat Sampler Parameter)\n• Function: Learning rate for Mirostat algorithm, controls how quickly it adapts to achieve target entropy\n• Range: 0.01 to 1.0 (higher values = faster adaptation)\n• Server Default: 0.1\n• Effects: Higher values make quicker adjustments, lower values make gradual changes\n• Controlled By: 'mirostat' sampler (must be in samplers array and mirostat = 1 or 2)"
+    }
+  },
+  "Sampler Sequence Control": {
+    "samplers": {
+      "default": "",
+      "type": "sequence",
+      "toggled": true,
+      "tooltip": "Sampler Sequence Control\n• Function: Defines the exact order in which sampling algorithms are applied during token generation\n• Range: Array of sampler names: temperature, top_k, top_p, min_p, typ_p, top_n_sigma, penalties, dry, xtc, mirostat, dynatemp\n• Server Default: [\\\"penalties\\\", \\\"dry\\\", \\\"top_n_sigma\\\", \\\"top_k\\\", \\\"typ_p\\\", \\\"top_p\\\", \\\"min_p\\\", \\\"xtc\\\", \\\"temperature\\\"]\n• Effects: Different sequences can significantly impact generation quality and behavior\n• WARNING: Must use array format. Parameters not in sequence will be ignored regardless of their individual settings\n• Independent Samplers: temperature, top_k, top_p, min_p, typ_p, top_n_sigma, penalties, dry, xtc, mirostat, dynatemp"
+    }
+  },
+  "Generation Control": {
+    "max_tokens": {
+      "default": -1,
+      "min": -2,
+      "max": 8192,
+      "type": "int",
+      "toggled": true,
+      "tooltip": "Maximum Tokens\n• Function: Maximum number of tokens to generate in the response\n• Range: -2 to 8192 (-1 = unlimited, -2 = use server context size)\n• Server Default: -1 (unlimited)\n• Effects: Controls response length and prevents runaway generation"
+    },
+    "n_predict": {
+      "default": -1,
+      "min": -2,
+      "max": 8192,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "N Predict (Alternative to max_tokens)\n• Function: Alternative parameter name for maximum tokens to generate\n• Range: -2 to 8192 (-1 = unlimited, -2 = use server context size)\n• Server Default: -1 (unlimited)\n• Effects: Identical to max_tokens, use one or the other, not both"
+    },
+    "n_keep": {
+      "default": 0,
+      "min": 0,
+      "max": 8192,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "Keep Tokens\n• Function: Number of tokens from the beginning of context to always keep during context shifting\n• Range: 0 to 8192 (0 = keep none, -1 = keep all)\n• Server Default: 0\n• Effects: Preserves important prompt tokens when context becomes full, prevents losing key instructions"
+    },
+    "n_discard": {
+      "default": 0,
+      "min": 0,
+      "max": 8192,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "Discard Tokens\n• Function: Number of tokens to discard from the beginning when context shifting is needed\n• Range: 0 to 8192 (0 = discard based on automatic calculation)\n• Server Default: 0 (automatic)\n• Effects: Controls which tokens are removed first during context management"
+    },
+    "min_keep": {
+      "default": 0,
+      "min": 0,
+      "max": 8192,
+      "type": "int",
+      "toggled": true,
+      "tooltip": "Minimum Keep Tokens\n• Function: Minimum number of tokens that must be kept when discarding during context shifting\n• Range: 0 to 8192 (0 = no minimum requirement)\n• Server Default: 0\n• Effects: Ensures critical prompt information is preserved even under memory pressure"
+    },
+    "seed": {
+      "default": -1,
+      "min": -1,
+      "max": 4294967295,
+      "type": "int",
+      "toggled": true,
+      "tooltip": "Random Seed\n• Function: Random number generator seed for reproducible generation\n• Range: -1 to 4294967295 (-1 = random seed)\n• Server Default: -1 (random)\n• Effects: Same seed with identical parameters produces identical outputs, essential for testing and benchmarking"
+    },
+    "stream": {
+      "default": false,
+      "type": "bool",
+      "toggled": false,
+      "tooltip": "Streaming Response\n• Function: Enable streaming response (tokens sent as generated rather than all at once)\n• Range: true or false\n• Server Default: false\n• Effects: true enables real-time token streaming, false waits for complete response"
+    },
+    "stop": {
+      "default": [],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "Stop Sequences\n• Function: Array of strings that will stop generation when encountered\n• Range: Array of strings (e.g., [\\\"\\\n\\\n\\\", \\\"END\\\", \\\"###\\\"])\n• Server Default: [] (empty array)\n• Effects: Provides precise control over when generation should terminate"
+    },
+    "model": {
+      "default": "qwen-2.5-14b",
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Model Name\n• Function: Specifies the model name for the API request (informational)\n• Range: Any string (typically model identifier)\n• Server Default: \\\"qwen-2.5-14b\\\"\n• Effects: Usually ignored by llama.cpp server, model is determined by --model server parameter"
+    }
+  },
+  "Logit Manipulation": {
+    "logit_bias": {
+      "default": {},
+      "type": "object",
+      "toggled": false,
+      "tooltip": "Logit Bias\n• Function: Modifies the probability of specific tokens by applying bias values to their logits before sampling\n• Range: Object with token IDs as keys and bias values as numbers (e.g., {\\\"15043\\\": 1.0, \\\"12345\\\": -1.0})\n• Server Default: {} (empty object)\n• Effects: Positive values increase token probability, negative values decrease it, enabling fine control over vocabulary"
+    },
+    "ignore_eos": {
+      "default": false,
+      "type": "bool",
+      "toggled": false,
+      "tooltip": "Ignore End-of-Stream\n• Function: Continue generation even after encountering end-of-stream tokens\n• Range: true or false\n• Server Default: false\n• Effects: true forces continued generation past natural stopping points, false respects EOS tokens\n• WARNING: Can cause infinite generation - always set max_tokens when using this"
+    },
+    "n_probs": {
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "Number of Probabilities\n• Function: Include the log probabilities of the top N most likely tokens in the response\n• Range: 0 to 100 (0 = no probabilities returned)\n• Server Default: 0\n• Effects: Provides token probability information for analysis, debugging, or confidence assessment"
+    }
+  },
+  "Grammar & Constraints": {
+    "grammar": {
+      "default": "",
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Grammar Constraints\n• Function: BNF-style grammar rules to constrain generation output format\n• Range: String containing GBNF grammar rules (e.g., \\\"root ::= object\\\nobject ::= '{' ws '}' | '{' ws pair (',' ws pair)* '}'\\\")\n• Server Default: \\\"\\\" (no constraints)\n• Effects: Forces generated text to conform to specified grammar structure, useful for structured output"
+    },
+    "grammar_lazy": {
+      "default": false,
+      "type": "bool",
+      "toggled": false,
+      "tooltip": "Grammar Lazy Mode\n• Function: Enable lazy evaluation of grammar constraints for potentially better performance\n• Range: true or false\n• Server Default: false\n• Effects: May improve generation speed with complex grammars but could affect constraint enforcement\n• WARNING: Only effective when grammar parameter is provided"
+    },
+    "grammar_triggers": {
+      "default": [],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "Grammar Triggers\n• Function: Array of strings that trigger grammar constraint activation during generation\n• Range: Array of strings (e.g., [\\\"{\\\\\n\\\", \\\"[\\\", \\\"START\\\"])\n• Server Default: [] (empty array)\n• Effects: Grammar constraints only apply after encountering one of these trigger strings\n• WARNING: Only effective when grammar parameter is provided"
+    },
+    "preserved_tokens": {
+      "default": [],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "Preserved Tokens\n• Function: Array of token IDs that should be preserved and not subject to certain sampling constraints\n• Range: Array of integer token IDs (e.g., [198, 220, 628])\n• Server Default: [] (empty array)\n• Effects: Specified tokens bypass certain sampling restrictions, useful for maintaining format tokens"
+    },
+    "json_schema": {
+      "default": null,
+      "type": "object",
+      "toggled": false,
+      "tooltip": "JSON Schema Constraints\n• Function: JSON schema object that constrains generation to produce valid JSON matching the schema\n• Range: Valid JSON schema object (e.g., {\\\"type\\\": \\\"object\\\", \\\"properties\\\": {...}})\n• Server Default: null (no constraints)\n• Effects: Ensures generated output conforms to specified JSON structure, perfect for structured data extraction"
+    }
+  },
+  "OpenAI Compatibility": {
+    "n": {
+      "default": 1,
+      "min": 1,
+      "max": 10,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "Number of Completions\n• Function: Number of completion responses to generate for each input\n• Range: 1 to 10\n• Server Default: 1\n• Effects: Higher values generate multiple different responses, useful for comparison or selection"
+    },
+    "logprobs": {
+      "default": null,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "Log Probabilities\n• Function: Include log probabilities of tokens in the response for OpenAI API compatibility\n• Range: null or positive integer\n• Server Default: null (no log probabilities)\n• Effects: Provides token probability information for analysis and debugging"
+    },
+    "top_logprobs": {
+      "default": null,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "Top Log Probabilities\n• Function: Number of top alternative tokens to include with their log probabilities\n• Range: null or positive integer\n• Server Default: null\n• Effects: Shows probability alternatives for each generated token, useful for understanding model confidence"
+    },
+    "echo": {
+      "default": false,
+      "type": "bool",
+      "toggled": false,
+      "tooltip": "Echo Input\n• Function: Include the input prompt in the response output\n• Range: true or false\n• Server Default: false\n• Effects: true returns both prompt and completion, false returns only the completion"
+    },
+    "suffix": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Completion Suffix\n• Function: Text that should come after the generated completion (for infill tasks)\n• Range: Any string or null\n• Server Default: null\n• Effects: Used for code completion and fill-in-the-middle tasks where context follows the generation"
+    },
+    "user": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "User Identifier\n• Function: Unique identifier for the user making the request (OpenAI compatibility)\n• Range: Any string or null\n• Server Default: null\n• Effects: Typically used for tracking and analytics, may not affect generation behavior"
+    }
+  },
+  "Function Calling": {
+    "tools": {
+      "default": [],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "Function Tools\n• Function: Array of tool/function definitions available for the model to call during generation\n• Range: Array of tool definition objects with function schemas\n• Server Default: [] (no tools available)\n• Effects: Enables function calling capabilities, allowing model to invoke external tools"
+    },
+    "tool_choice": {
+      "default": "auto",
+      "type": "enum",
+      "options": [
+        "auto",
+        "none",
+        "required"
+      ],
+      "toggled": false,
+      "tooltip": "Tool Choice Strategy\n• Function: Controls how the model decides whether to use available tools\n• Range: \\\"auto\\\" (model decides), \\\"none\\\" (never use tools), \\\"required\\\" (must use a tool)\n• Server Default: \\\"auto\\\"\n• Effects: Determines tool usage behavior and response format when tools are available\n• WARNING: Only effective when tools array is provided"
+    }
+  },
+  "Server Specific": {
+    "slot_id": {
+      "default": null,
+      "type": "int",
+      "toggled": false,
+      "tooltip": "Slot ID\n• Function: Specific slot ID to use for this request in multi-slot server configurations\n• Range: null or positive integer\n• Server Default: null (automatic slot assignment)\n• Effects: Forces request to use specific processing slot, useful for isolation or debugging"
+    },
+    "cache_prompt": {
+      "default": true,
+      "type": "bool",
+      "toggled": false,
+      "tooltip": "Cache Prompt\n• Function: Whether to cache the processed prompt for potential reuse\n• Range: true or false\n• Server Default: true\n• Effects: false ensures deterministic behavior by preventing prompt caching, true improves performance\n• WARNING: Set to false for reproducible benchmarking to avoid cache contamination"
+    },
+    "reasoning_in_content": {
+      "default": false,
+      "type": "bool",
+      "toggled": true,
+      "tooltip": "Reasoning in Content\n• Function: Include reasoning/thinking process in the main response content\n• Range: true or false\n• Server Default: false\n• Effects: true shows model's reasoning process in output, false keeps only final response"
+    },
+    "thinking_forced_open": {
+      "default": false,
+      "type": "bool",
+      "toggled": false,
+      "tooltip": "Thinking Forced Open\n• Function: Force the model to show its thinking process even when it would normally hide it\n• Range: true or false\n• Server Default: false\n• Effects: true makes internal reasoning visible, useful for understanding model decision-making"
+    },
+    "anti_prompt": {
+      "default": [],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "Anti Prompt\n• Function: Array of strings that will stop generation when encountered (alternative to stop sequences)\n• Range: Array of strings\n• Server Default: [] (empty array)\n• Effects: Similar to stop parameter but processed differently by the server"
+    },
+    "assistant_name": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Assistant Name\n• Function: Name to use for the assistant in chat-style conversations\n• Range: Any string or null\n• Server Default: null (use default)\n• Effects: Customizes assistant identity in chat templates, may influence response style"
+    },
+    "user_name": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "User Name\n• Function: Name to use for the user in chat-style conversations\n• Range: Any string or null\n• Server Default: null (use default)\n• Effects: Customizes user identity in chat templates, may influence how assistant addresses user"
+    }
+  },
+  "Reranking": {
+    "query": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Reranking Query\n• Function: Query string for document reranking operations\n• Range: Any string or null\n• Server Default: null\n• Effects: Used to rank documents by relevance to this query string"
+    },
+    "documents": {
+      "default": [],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "Documents for Reranking\n• Function: Array of document strings to be ranked by relevance to the query\n• Range: Array of strings\n• Server Default: [] (empty array)\n• Effects: Documents will be scored and ranked based on query relevance"
+    }
+  },
+  "Code Completion": {
+    "input_prefix": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Code Input Prefix\n• Function: Code context that comes before the completion point (for code completion tasks)\n• Range: Any string or null\n• Server Default: null\n• Effects: Provides context for fill-in-the-middle code completion, defines what comes before the cursor"
+    },
+    "input_suffix": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Code Input Suffix\n• Function: Code context that comes after the completion point (for code completion tasks)\n• Range: Any string or null\n• Server Default: null\n• Effects: Provides context for fill-in-the-middle code completion, defines what comes after the cursor"
+    }
+  },
+  "Embeddings": {
+    "input": {
+      "default": null,
+      "type": "string",
+      "toggled": false,
+      "tooltip": "Embedding Input\n• Function: Text string to generate embeddings for\n• Range: Any string or null\n• Server Default: null\n• Effects: Input text will be converted to vector embeddings for semantic analysis"
+    },
+    "encoding_format": {
+      "default": "float",
+      "type": "enum",
+      "options": [
+        "float",
+        "base64"
+      ],
+      "toggled": false,
+      "tooltip": "Embedding Encoding Format\n• Function: Format for returning embedding vectors\n• Range: \\\"float\\\" (array of numbers) or \\\"base64\\\" (base64-encoded string)\n• Server Default: \\\"float\\\"\n• Effects: Determines how embedding data is encoded in the response"
+    }
+  },
+  "Chat Template Control": {
+    "chat_template_kwargs": {
+      "default": {},
+      "type": "object",
+      "toggled": false,
+      "tooltip": "Chat Template Arguments (JSON Object)\n• Function: Pass custom parameters to Jinja chat templates for model behavior control\n• Format: JSON object with template-specific variables\n• Primary Use: GPT-OSS models for reasoning effort control\n• Examples:\n  - {\"reasoning_effort\": \"low\"} - minimal thinking\n  - {\"reasoning_effort\": \"medium\"} - balanced reasoning (default)\n  - {\"reasoning_effort\": \"high\"} - maximum reasoning depth\n• Usage: Enter valid JSON like: {\"reasoning_effort\": \"low\"}\n• Technical: Parameters are passed to Jinja template renderer during chat formatting"
+    }
+  },
+  "Advanced Response Control": {
+    "response_fields": {
+      "default": [],
+      "type": "array",
+      "toggled": false,
+      "tooltip": "Response Fields\n• Function: Array of specific fields to include in the response (advanced response control)\n• Range: Array of field names\n• Server Default: [] (include standard fields)\n• Effects: Customizes response structure to include only specified fields"
+    }
+  }
+}

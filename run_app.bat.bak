@@ -1,0 +1,19 @@
+@echo off
+title Hyperparameter Configuration Tool
+echo ==========================================
+echo   Hyperparameter Configuration Tool
+echo   Model Agnostic Design
+echo ==========================================
+echo.
+echo Starting application...
+echo.
+
+cd /d "%~dp0"
+venv\Scripts\python.exe main.py
+
+REM Keep window open if there's an error
+if errorlevel 1 (
+    echo App failed to start. Press any key to close.
+    pause >nul
+)
+exit

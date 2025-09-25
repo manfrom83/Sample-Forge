@@ -1,0 +1,100 @@
+{
+  "window": {
+    "geometry": "1400x900",
+    "start_maximized": true
+  },
+  "component_heights": {
+    "system_prompt": 3,
+    "user_message": 6,
+    "json_preview": 25,
+    "llm_output": 15
+  },
+  "tooltip": {
+    "auto_hide_ms": 5000,
+    "delay_ms": 500
+  },
+  "fonts": {
+    "label_bold": [
+      "Arial",
+      9,
+      "bold"
+    ],
+    "label_normal": [
+      "Arial",
+      9
+    ],
+    "label_small": [
+      "Arial",
+      7
+    ],
+    "code_normal": [
+      "Consolas",
+      9
+    ],
+    "code_small": [
+      "Consolas",
+      8
+    ],
+    "json_preview": [
+      "Consolas",
+      8
+    ]
+  },
+  "colors": {
+    "tooltip_bg": "#ffffe0",
+    "priority_critical": "#28a745",
+    "priority_important": "#ffc107",
+    "priority_optional": "#ffffff",
+    "toggle_on": "#28a745",
+    "toggle_off": "#dc3545",
+    "boolean_true": "#007bff",
+    "boolean_false": "#6c757d",
+    "critical_on": "#dc3545",
+    "critical_off": "#28a745",
+    "caution_on": "#ffc107",
+    "caution_off": "#6c757d",
+    "safe_on": "#28a745",
+    "safe_off": "#6c757d",
+    "default_value": "#28a745",
+    "modified_value": "#ffc107",
+    "gray_text": "gray",
+    "blue_text": "blue",
+    "green_text": "green",
+    "red_text": "red"
+  },
+  "dimensions": {
+    "text_width": 80,
+    "json_width": 50,
+    "right_frame_width": 540,
+    "toggle_button_width": 4,
+    "toggle_button_height": 1,
+    "boolean_button_width": 5,
+    "boolean_button_height": 1,
+    "browse_button_width": 3,
+    "combo_width": 30,
+    "combo_sub_width": 20,
+    "entry_width": 12,
+    "tooltip_wrap": 400,
+    "tooltip_border": 1,
+    "min_column_width": {
+      "checkbox": 30,
+      "param_name": 150,
+      "value_input": 100,
+      "description": 200
+    }
+  },
+  "validation": {
+    "max_path_length": 260,
+    "max_param_value_length": 1024,
+    "max_numeric_string_length": 20,
+    "max_flag_name_length": 50,
+    "max_tooltip_width": 400,
+    "tooltip_wrap_length": 50
+  },
+  "performance": {
+    "ui_update_delay_ms": 100,
+    "search_debounce_ms": 300,
+    "auto_save_interval_s": 30,
+    "max_tooltip_instances": 10
+  }
+}
