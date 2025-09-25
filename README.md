@@ -1,6 +1,6 @@
 # Sample Forge
 
-Research tool for deterministic inferance and convergent sampling parameters in large language models.
+Research tool for deterministic inference and convergent sampling parameters in large language models.
 
 ## Highlights
 - Server Config: Build and launch a local `llama-server` with validated flags.
