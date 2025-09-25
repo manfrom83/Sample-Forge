@@ -19,6 +19,14 @@ Model‑agnostic desktop app for configuring and benchmarking local LLM servers 
   - Dataset Conversion loads LiveBench data from Hugging Face Hub.
 - For Linux: install Tkinter (e.g., `sudo apt-get install python3-tk`).
 
+### llama.cpp Server (Windows/NVIDIA)
+- To run a local model server, download llama.cpp binaries and the CUDA runtime and extract them into the SAME folder, e.g. `C:\llama-server`:
+  - CUDA runtime ZIP: https://github.com/ggml-org/llama.cpp/releases/download/b6585/cudart-llama-bin-win-cuda-12.4-x64.zip
+  - llama.cpp server ZIP: https://github.com/ggml-org/llama.cpp/releases/download/b6585/llama-b6585-bin-win-cuda-12.4-x64.zip
+- After extracting both into one folder, you should have `llama-server.exe` alongside the required CUDA DLLs.
+- In the app, open the “Server Config” tab and point the executable path to that `llama-server.exe`, then configure flags and start the server.
+- CPU‑only users can use a CPU build of llama.cpp or compile from source; update the path accordingly.
+
 ## Quick Start (Windows)
 1. Download the ZIP from the repository page and extract.
 2. Double‑click `run_app.bat`.
@@ -106,4 +114,3 @@ data/                   # user data (ignored in git except examples/.gitkeep)
 
 ## License
 This project is released under the MIT License (see `LICENSE`).
-
