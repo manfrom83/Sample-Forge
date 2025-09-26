@@ -114,19 +114,8 @@ data/                   # user data (ignored in git except examples/.gitkeep)
 - Server connection errors: verify host/port/timeouts on the Server Config tab; confirm `llama-server` is running.
 
 ## About
-I’m a researcher focused on deterministic inference and convergent sampling parameters in large language models. I designed this tool to make rigorous, reproducible benchmarking easier—from dataset exploration and export to server control, parameter search, and transparent scoring.
-
-What I bring
-- Architecture and experiment workflow design for LLM evaluation
-- Practical inference systems around `llama.cpp` and OpenAI‑style endpoints
-- Parameter exploration strategies (nucleus/mirostat/dry families) and reproducibility
-- 3+ years tinkering with AI systems; extensive fine‑tuning experience with diffusion image models (e.g., Stable Diffusion, Flux)
-
-Contact
-- Email: manfrom83@gmail.com
-- Discord (channel ID): 1335741024403980368 — open to discussion, Q&A, and collaboration
-
-I’m open to collaboration and consulting on LLM benchmarking, evaluation pipelines, and pragmatic inference tooling.
+- Enthusiastic AI researcher exploring various AI systems. I care about clean, interoperable workflows and tools that actually help.
+- Contact: manfrom83@gmail.com • Discord: 1335741024403980368
 
 ## License
 This project is released under the MIT License (see `LICENSE`).
