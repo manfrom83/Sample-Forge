@@ -40,6 +40,10 @@ Research tool for deterministic inference and convergent sampling parameters in 
    - Launches the app window.
 3. Optional: If you plan to run a local model server, set it up in the “Server Config” tab.
 
+## Videos
+- Installation (Windows): https://www.youtube.com/watch?v=4LOdbXBk3ns
+- Overview and usage guide: https://youtu.be/yHAkUNJSHoA
+
 ## Quick Start (macOS/Linux)
 - Use the helper script or run manually:
   ```bash
